@@ -1,63 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { io } from "socket.io-client";
 import './App.css';
+import Navbar from './components/Navbar';
+import Input_send from './components/Input_send';
 
 function App() {
     const [messages, setMessages] = useState([]);
     const [messageInput, setMessageInput] = useState("");
+    const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    const socket = io('http://localhost:3000');
+    useEffect(() => {
+      const newSocket = io('http://localhost:3000');
+      setSocket(newSocket);
 
-    socket.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  const senddata = () => {
-    console.log(messageInput);
+      newSocket.on("messageHistory", (messages) => {
+        setMessages(messages); // Keep messages as objects, not just strings
+      });
+      
     
-    if (messageInput.trim() !== "") {
-      const socket = io('http://localhost:3000');
-      socket.emit("sendmessage", messageInput);
-      setMessageInput('');
-    }
-    else{
-      //need a small red marker on button if no rtext is entered and send button is clicked
-      console.log("No text entered");     
-    }
-  };
-
-  return (
-    <>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <div className="App">
-        <div className="chat-container">
+      newSocket.on("message", (message) => {
+        setMessages(prev => [...prev, message]);
+      });
+    
+      return () => newSocket.disconnect();
+    }, []);
+    
+    const senddata = () => {
+      if (socket && messageInput.trim() !== "") {
+        socket.emit("sendmessage", messageInput);
+        setMessageInput('');
+      } else if (!socket) {
+        console.log("Socket not connected");
+      } else {
+        console.log("No text entered");
+      }
+    };
+    
+    return (
+      <>
+        <Navbar/>
+        <div className="App">
+          <div className="chat-container">
           <div className="chat-messages">
-            {console.log("display:->",messages)}
-            {messages.map((message, index) => (
-              <div key={index} className="message">
-                {message}
-              </div>
-            ))}
-          </div>
-          <span>
-            <input
-              type="text"
-              placeholder="Enter your text here"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
+  {messages.map((msg, index) => (
+    <div key={msg._id || index} className="message">
+      {msg.message} {/* Extract only the text message */}
+    </div>
+  ))}
+</div>
+
+            <Input_send
+            
+              messageInput={messageInput}
+              setMessageInput={setMessageInput}
+              senddata={senddata}
             />
-            <button onClick={senddata}>Send</button>
-          </span>
-        </div>
-      </div>
-    </>
-  );
+          </div>
+        </div>  
+      </>
+    );
 }
 
 export default App;
