@@ -10,21 +10,45 @@ function App() {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-      const newSocket = io('http://localhost:3000');
-      setSocket(newSocket);
+      const Socket = io('http://localhost:3000');
+      console.log("socket ,", Socket)
+      
+      setSocket(Socket);
 
-      newSocket.on("messageHistory", (messages) => {
+      Socket.on("messageHistory", (messages) => {
+        {console.log(messages)
+        }
         setMessages(messages); // Keep messages as objects, not just strings
       });
       
     
-      newSocket.on("message", (message) => {
+      Socket.on("message", (message) => {
         setMessages(prev => [...prev, message]);
       });
     
-      return () => newSocket.disconnect();
+      return () => Socket.disconnect();
     }, []);
     
+const clearmessage=async()=>{
+  try{
+const response = await fetch("http://localhost:3000/delete", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    console.log("Messages cleared successfully");
+    setMessages([]); // Clear messages from state
+  } else {
+    console.error("Failed to clear messages");
+  }
+}
+  catch{
+    console.log("error")
+  }
+}
+
     const senddata = () => {
       if (socket && messageInput.trim() !== "") {
         socket.emit("sendmessage", messageInput);
@@ -38,11 +62,15 @@ function App() {
     
     return (
       <>
-        <Navbar/>
+        <Navbar clearmessage ={clearmessage}/>
+        
+
         <div className="App">
           <div className="chat-container">
           <div className="chat-messages">
   {messages.map((msg, index) => (
+    console.log(msg),
+    
     <div key={msg._id || index} className="message">
       {msg.message} {/* Extract only the text message */}
     </div>
@@ -50,7 +78,7 @@ function App() {
 </div>
 
             <Input_send
-            
+
               messageInput={messageInput}
               setMessageInput={setMessageInput}
               senddata={senddata}

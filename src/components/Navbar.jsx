@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import meetme from '../assets/meetme.png';
-function Navbar() {
+function Navbar({clearmessage}) {
+
+
+
+   
     return (
         <nav className="bg-gray-800">
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -35,7 +39,7 @@ function Navbar() {
                     </div>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                         {/* New message button */}
-                      
+
 
                         {/* Notifications button */}
                         <button type="button" className="relative ml-3 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -47,10 +51,14 @@ function Navbar() {
                             {/* Notification badge */}
                             <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-gray-800"></span>
                         </button>
+                        <div className="ml-3 bg-red-500 text-white rounded-md px-2 py-1 hover:bg-red-700">
+    <button onClick={clearmessage}>Delete Conversation</button>
+</div>
+
 
                         {/* Profile dropdown */}
                         <div className="relative ml-3">
-                     
+
 
                             {/* Dropdown menu */}
                             <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex="-1">
@@ -71,6 +79,7 @@ function Navbar() {
                     <a href="#" className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Contacts</a>
                     <a href="#" className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Groups</a>
                     <a href="#" className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Settings</a>
+
                 </div>
             </div>
         </nav>

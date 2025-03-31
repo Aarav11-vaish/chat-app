@@ -18,9 +18,8 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://localhost:27017/chat-app")
-    .then(() => console.log("Connected to MongoDB"))
-    .catch(err => console.error("MongoDB connection error:", err));
+mongoose.connect("mongodb://localhost:27017/chat-app");
+
 
 
 
@@ -35,8 +34,11 @@ const Message= mongoose.model("message", messageSchema);
 
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
+console.log(socket);
 
     Message.find().then((result) => {
+        console.log(result);
+        
          socket.emit("messageHistory", result);
     });
     socket.on("sendmessage", async (message) => {
@@ -50,6 +52,18 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("User disconnected:", socket.id);
     });
+});
+
+app.delete("/delete", async (req, res) => {
+    try {
+        await Message.deleteMany({});
+        io.emit("messageHistory", []); // Emit an empty array to clear the messages on the client side
+        console.log("All messages deleted successfully.");
+        res.status(200).send("All messages deleted successfully.");
+    } catch (error) {
+        console.error("Error deleting messages:", error);
+        res.status(500).send("Error deleting messages.");
+    }
 });
 
 server.listen(3000, () => {
