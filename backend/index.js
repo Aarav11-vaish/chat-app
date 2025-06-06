@@ -11,6 +11,10 @@ app.use(express.json());
 dotenv.config();
 app.use(cookieParser());
 
+//apply cors
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+
 mongoose.connect("mongodb://localhost:27017/chat-app");
 
 
