@@ -216,6 +216,33 @@ catch(err){
 }
 })
 
+
+app.post('/send/:id', protectRoute, async(req, res)=>{
+    const {id} = req.params;
+    const { text, image } = req.body;
+    const senderID = req.user._id;
+    const newmessage=new messageModel({
+        senderID: senderID,
+        receiverID: id,
+        text: text,
+        image: image
+    })
+    await newmessage.save()
+    res.status(201).json(newmessage);
+    // need to implement socket.io to send the message to the receiver in real-time
+    
+})
+app.get('/checkAuth', protectRoute, (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    }
+    catch (err) {
+        console.error(err, "Error in checkAuth");
+        
+        res.status(500).json({ error: "Internal server error" });
+    }
+})
+
 app.get('/:id', protectRoute, async (req, res) => {
     try{
 const {id}=req.params;
@@ -236,33 +263,6 @@ res.status(200).json(messages);
         res.status(500).json({ error: "Internal server error" });
     }
 })
-
-app.post('/send/:id', protectRoute, async(req, res)=>{
-    const {id} = req.params;
-    const { text, image } = req.body;
-    const senderID = req.user._id;
-    const newmessage=new messageModel({
-        senderID: senderID,
-        receiverID: id,
-        text: text,
-        image: image
-    })
-    await newmessage.save()
-    res.status(201).json(newmessage);
-    // need to implement socket.io to send the message to the receiver in real-time
-
-})
-app.get('/checkAuth', protectRoute, (req, res) => {
-    try {
-        res.status(200).json(req.user);
-    }
-    catch (err) {
-        console.error(err, "Error in checkAuth");
-
-        res.status(500).json({ error: "Internal server error" });
-    }
-})
-
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 });

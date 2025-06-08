@@ -12,7 +12,7 @@ function Signup() {
     password: "",
   });
 
-const { signAuth, isSignedUp } = authStore(); // ✅ Correct
+const { signAuth, isSignedUp } = authStore(); 
 
   const validateForm = () => {
     if(!formdata.fullName.trim()) return toast.error("Username is required");

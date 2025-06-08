@@ -39,6 +39,22 @@ console.error(e, "Error in signAuth");
             set({ isSignedUp: false });
         }
     },
+    login:async(data)=>{
+      try{
+set({ isLoggedIn: true });
+        const res =await axiosInstance.post('/login', data);
+        console.log(res);
+        set({ authUser: res.data });
+        toast.success("Login successful");
+      } 
+      catch(e){
+        console.error(e, "Error in login");
+        toast.error("Login failed");
+      }
+      finally{
+set({ isLoggedIn: false });
+      } 
+    },
      logout:async()=>{
         try{
             const res =await axiosInstance.get('/logout');
