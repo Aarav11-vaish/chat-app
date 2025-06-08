@@ -9,7 +9,7 @@ import {authStore} from './authStore';
 import { axiosInstance } from './axios';
 import { Loader, LogIn } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
-
+import toast, { Toaster } from 'react-hot-toast';
 function App() {
   const {authUser , checkAuth , ischeckAuthenticated }=authStore();
   
@@ -40,7 +40,7 @@ function App() {
                     <Route path="/login" element={!authUser? <Login/>: <Navigate to='/'/>} />
 
         </Routes>
-     
+     <Toaster />
      </>
     );
 }

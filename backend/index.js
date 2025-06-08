@@ -6,14 +6,16 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 const app = express();
-app.use(cors());
-app.use(express.json());
 dotenv.config();
 app.use(cookieParser());
 
 //apply cors
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({
+  origin: 'http://localhost:5173', // your Vite frontend
+  credentials: true,              // allow cookies, auth headers
+}));
 
+app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/chat-app");
 
@@ -134,7 +136,7 @@ const generateToken = (userid, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
         sameSite: 'strict', // Helps prevent CSRF attacks
-        secure: process.env.MODE_ENV === 'development' // Use secure cookies in production
+        secure: process.env.NODE_ENV === 'development' // Use secure cookies in production
     })
     return token;
 }
@@ -144,7 +146,7 @@ const generateToken = (userid, res) => {
 
 
 app.post('/signup', async (req, res) => {
-    const { email, username, password } = req.body;
+    const { fullName: username,email, password } = req.body;
     try {
         if (!email || !username || !password) {
             return res.status(400).json({ error: "All fields are required" });

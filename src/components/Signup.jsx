@@ -1,25 +1,42 @@
 import React, { useState } from "react";
 import { authStore } from "../authStore";
 import { MessageSquare, User, Mail, Eye , Lock, EyeOff, Loader2, Loader} from "lucide-react";
-import Rightsidepattern from "../Rightsidepattern"; // Assuming you have a RightSidePattern component
+import Rightsidepattern from "../Rightsidepattern"; 
+import { toast } from "react-hot-toast";
 function Signup() {
   const [showpassword, setShowPassword] = useState(false); // Corrected useState destructuring
   const [formdata, setFormData] = useState({
-    username: "",
+   
+    fullName: "", // Added fullName to avoid undefined error
     email: "",
     password: "",
-    fullName: "", // Added fullName to avoid undefined error
   });
 
-  const { sighnup, issignup } = authStore();
+const { signAuth, isSignedUp } = authStore(); // ✅ Correct
 
   const validateForm = () => {
+    if(!formdata.fullName.trim()) return toast.error("Username is required");
+    if(!formdata.email.trim()) return toast.error("Email is required");
+    if(!/\S+@\S+\.\S+/.test(formdata.email)) return toast.error("Invalid email format");
+    if(!formdata.password) return toast.error("Password is required");
+    if(formdata.password.length < 6) return toast.error("Password must be at least 6 characters long");
+
+
+    return true;
+
     // validation logic (optional)
   };
 
   const handleforminput = (e) => {
     e.preventDefault();
-    // form submission logic
+
+    const isValid = validateForm();
+   
+
+    // Call the signup function from authStore
+   if (isValid === true) {
+  signAuth(formdata);
+}
   };
 
   return (
@@ -104,8 +121,8 @@ function Signup() {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={issignup}>
-              {issignup ? (
+            <button type="submit" className="btn btn-primary w-full" disabled={isSignedUp}>
+              {isSignedUp ? (
                 <>
                   <Loader2 className="size-5 animate-spin" />
                   Loading...

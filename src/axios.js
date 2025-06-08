@@ -1,6 +1,6 @@
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000', // Replace with your API base URL
-withCredentials: true, // Include credentials in requests
+  baseURL: 'http://localhost:3000',
+  withCredentials: true, // this sends cookies or headers
 });
