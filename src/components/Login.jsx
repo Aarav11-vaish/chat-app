@@ -56,6 +56,8 @@ login(formdata)
                   className={`input input-bordered w-full pl-10`}
                   placeholder="you@example.com"
                   value={formdata.email}
+                  // The spread operator (...formdata) copies the existing form data,
+                  // so only the 'email' field is updated while keeping other fields unchanged.
                   onChange={(e) => setFormData({ ...formdata, email: e.target.value })}
                 />
               </div>

@@ -5,6 +5,7 @@ export const authStore = create((set) => ({
     authUser: null,
     isSignedUp: false,
     isLoggedIn: false,
+    isProfileUpdated: false,
     ischeckAuthenticated: true,
     checkAuth: async () => {
         try {
@@ -67,6 +68,37 @@ set({ isLoggedIn: false });
             toast.error("Logout failed");
 
         }
-    }    
+    }, 
+   profileupdate: async (data) => {
+    try {
+        set({ isProfileUpdated: true });
+
+        // Filter out empty or undefined fields
+        const filteredData = {};
+        if (data.fullName && data.fullName.trim() !== "") {
+            filteredData.fullName = data.fullName.trim();
+        }
+        if (data.password && data.password.trim() !== "") {
+            filteredData.password = data.password.trim();
+        }
+
+        if (Object.keys(filteredData).length === 0) {
+            toast.error("No changes to update");
+            return;
+        }
+
+        const res = await axiosInstance.put('/profileupdate', filteredData);
+        console.log(res);
+        set({ authUser: res.data });
+        toast.success("Profile updated successfully");
+
+    } catch (e) {
+        console.error(e, "Error in profileupdate");
+        toast.error("Profile update failed");
+    } finally {
+        set({ isProfileUpdated: false });
+    }
+}
+
 }));
 

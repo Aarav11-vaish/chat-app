@@ -100,6 +100,7 @@ app.post('/login', async (req, res) => {
     }
 })
 
+
 const protectRoute = async (req, res, next) => {
     try {
         const token = req.cookies.jwt;
@@ -143,6 +144,48 @@ const generateToken = (userid, res) => {
 // what is the purpose of this function?
 // The generateToken function creates a JWT token for the user and sets it as a cookie in the response.
 // This token can be used for authentication in subsequent requests, allowing the server to verify the user's identity without requiring them to log in again.
+
+app.put('/profileupdate', protectRoute, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { fullName, password } = req.body;
+
+    const updateFields = {};
+
+    if (fullName && fullName.trim().length > 0) {
+      updateFields.username = fullName;
+    }
+
+    if (password && password.trim().length > 0) {
+      if (password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters long" });
+      }
+      updateFields.password = await bcrypt.hash(password, 10);
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ error: "No valid fields provided to update" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const token = generateToken(updatedUser._id, res);
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      email: updatedUser.email,
+      username: updatedUser.username,
+      token: token
+    });
+  } catch (err) {
+    console.error("Error in profile update:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 app.post('/signup', async (req, res) => {
