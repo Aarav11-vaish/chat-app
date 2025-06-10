@@ -25,21 +25,11 @@ return (
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to={"/settings"}
-              className={`
-              btn btn-sm gap-2 transition-colors
-              
-              `}
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </Link>
+          
+            
 
             {authUser && (
-              <>
-              // if the user is in profile page then it will not show profile button 
-
+              <> 
 
                 <Link to={"/profile"} className={`btn btn-sm gap-2`}>
                   <User className="size-5" />

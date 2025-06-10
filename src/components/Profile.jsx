@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { authStore } from '../authStore';
 import { toast } from 'react-hot-toast';
 import { User, Mail, Lock, Calendar } from 'lucide-react';
-
+import Navbar from './Navbar';
 function Profile() {
   const { authUser, isProfileUpdated, profileupdate } = authStore();
 
@@ -34,7 +34,10 @@ function Profile() {
   };
 
   return (
+
+    
     <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-800 pt-20">
+      <Navbar/>
       <div className="max-w-4xl mx-auto p-4 py-8">
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
           {/* Header Section */}
