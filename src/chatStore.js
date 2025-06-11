@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 export const chatStore = create((set) => ({
     messages: [],
     users: [],
-    isuserloading: false,
+    selectedusers:false,
+    isuserloading: false    ,
     ismessagesloading: false,
 
     getUsers: async () => {
@@ -38,6 +39,10 @@ set({messages:res.data});
         finally{
             set({ismessagesloading: false});
         }
-    }
+    }, 
+    setselecteduser : async(selectedusers)=>{
+        set({selectedusers});
 
-}))
+    },
+
+}));
