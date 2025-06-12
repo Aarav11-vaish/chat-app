@@ -1,12 +1,8 @@
 import React from "react";
 import Navbar from "./Navbar";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import NoChatselected from "./NoChatSelected";
 import Sidebar  from "./Sidebar";
-import { useState } from "react";
 import ChatContainer from "./ChatContainer";
-import { authStore } from "../authStore";
 import {chatStore} from "../chatStore";
 function Home() {
     const {selectedUser}= chatStore();

@@ -5,18 +5,22 @@ import { Users } from "lucide-react";
 import { useState } from "react";
 
 function Sidebar(){
-    const {showOnlineOnly, setShowOnlineOnly, } = useState();
-    const {getUsers, users , setselecteduser, selectedusers, isuserloading }=chatStore()
-    const onlineUsers=[];
+    const {showOnlineOnly, setShowOnlineOnly, } = useState(false);
+    const {getUsers, users , setSelectedUser, selectedUsers, isuserloading }=chatStore()
+    const {onlineUsers}=authStore();
     useEffect(()=>{
         getUsers();
     }, [getUsers])
+
     if(isuserloading) <div>Loading ...</div>
         
+
      const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
     console.log(users, "users in sidebar"); 
+    console.log("onlineUsers", onlineUsers);
+    
     
     return(
  <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -25,6 +29,18 @@ function Sidebar(){
           <Users className="size-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
+           <div className="mt-3 hidden lg:flex items-center gap-2">
+          <label className="cursor-pointer flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showOnlineOnly}
+              onChange={(e) => setShowOnlineOnly(e.target.checked)}
+              className="checkbox checkbox-sm"
+            />
+            <span className="text-sm">Show online only</span>
+          </label>
+          <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+        </div>
         {/* TODO: Online filter toggle */}
       </div>
 
@@ -32,11 +48,11 @@ function Sidebar(){
         {filteredUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setselecteduser(user)}
+            onClick={() => setSelectedUser(user)}
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors
-              ${selectedusers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              ${selectedUsers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
             `}
           >
             <div className="relative mx-auto lg:mx-0">
@@ -48,7 +64,7 @@ function Sidebar(){
               {onlineUsers.includes(user._id) && (
                 <span
                   className="absolute bottom-0 right-0 size-3 bg-green-500 
-                  rounded-full ring-2 ring-zinc-900"
+                  rounded-full ring-2 ring-zinc-850"
                 />
               )}
             </div>
