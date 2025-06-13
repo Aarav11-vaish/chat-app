@@ -40,7 +40,7 @@ set({messages:res.data});
             set({ismessagesloading: false});
         }
     }, 
- setSelectedUser: (selectedUser) => set({ selectedUser }),
+ setSelectedUser: (selectedusers) => set({ selectedusers }),
 
 
 
