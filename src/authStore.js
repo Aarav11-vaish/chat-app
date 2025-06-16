@@ -72,7 +72,7 @@ set({ isLoggedIn: false });
     }, 
    profileupdate: async (data) => {
     try {
-        set({ isProfileUpdated: true });
+        set({ isProfileUpdated: true});
 
         // Filter out empty or undefined fields
         const filteredData = {};
