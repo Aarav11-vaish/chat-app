@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import axios from 'axios';
 import { axiosInstance } from './axios';
 import toast from 'react-hot-toast';
-export const chatStore = create((set) => ({
+export const chatStore = create((set, get) => ({
     messages: [],
     users: [],
 selectedusers:null,

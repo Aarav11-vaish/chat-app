@@ -1,10 +1,11 @@
 import { X } from "lucide-react";
 import { authStore } from "../authStore";
 import { chatStore } from "../chatStore";
-
 const ChatHeader = () => {
   const { selectedusers, setSelectedUser } = chatStore(); // use selectedusers
   const { onlineUsers } = authStore();
+
+  if (!selectedusers) return null;
 
 
   return (

@@ -5,8 +5,6 @@ import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { Link, Mail } from "lucide-react";
 import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
-
-
 import { toast } from "react-hot-toast";
 import RightSidePattern from "../Rightsidepattern";
 

@@ -5,15 +5,15 @@ import { Users } from "lucide-react";
 import { useState } from "react";
 
 function Sidebar(){
-    const {showOnlineOnly, setShowOnlineOnly, } = useState(false);
-    const {getUsers, users , setSelectedUser, selectedUsers, isuserloading }=chatStore()
+    const {showOnlineOnly, setShowOnlineOnly} = useState(false);
+    const {getUsers, users , setSelectedUser, selectedusers, isuserloading }=chatStore()
     const {onlineUsers}=authStore();
     useEffect(()=>{
         getUsers();
     }, [getUsers])
 
-    if(isuserloading) <div>Loading ...</div>
-        
+   if (isuserloading) return <div>Loading ...</div>;
+
 
      const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
@@ -52,7 +52,7 @@ function Sidebar(){
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors
-              ${selectedUsers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              ${selectedusers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
             `}
           >
             <div className="relative mx-auto lg:mx-0">

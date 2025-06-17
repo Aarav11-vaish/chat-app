@@ -3,7 +3,7 @@ import { chatStore } from "../chatStore";
 import { authStore } from "../authStore";
 import ChatHeader from "./ChatHeader";
 import Input_send from "./Input_send";
-
+import NoChatSelected from "./NoChatSelected";
 function ChatContainer() {
   const { messages, getMessages, selectedusers, ismessagesloading } = chatStore();
   const { onlineUsers } = authStore();
@@ -14,7 +14,7 @@ function ChatContainer() {
     }
   }, [getMessages, selectedusers]);
 
-  if (ismessagesloading) return <h1>Loading....</h1>;
+if (!selectedusers) return <NoChatSelected />;
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
