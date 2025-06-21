@@ -39,7 +39,24 @@ set({messages:res.data});
         finally{
             set({ismessagesloading: false});
         }
-    }, 
+    },
+  sendMessages: async (receiverid, text, image) => {
+    try{
+    const res =await axiosInstance.post("/send/"+receiverid, {
+        text: text,
+        image: image,
+    });
+    set((state)=>({
+        
+       messages:[...state.messages, res.data]  
+    }));
+    }
+    catch (e){
+        toast.error("Error in sending message");
+        console.error(e);
+
+    }
+  },
  setSelectedUser: (selectedusers) => set({ selectedusers }),
 
 

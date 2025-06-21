@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Send } from "lucide-react";
-
+import { chatStore } from "../chatStore";
+import { authStore } from "../authStore";
 function Input_send({ messageInput, setMessageInput, senddata }) {
+  useEffect(()=>{
+
+  }, [])
   return (
     <div className="flex items-center gap-2">
       <input

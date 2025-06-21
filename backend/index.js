@@ -21,7 +21,7 @@ mongoose.connect("mongodb://localhost:27017/chat-app");
 
 
 
-const messageSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
@@ -65,7 +65,7 @@ const messagingSchema = new mongoose.Schema({
     }
 )
 const messageModel = mongoose.model("Message", messagingSchema);
-const User = mongoose.model("User", messageSchema);
+const User = mongoose.model("User", userSchema);
 
 app.post('/login', async (req, res) => {
 
@@ -215,8 +215,8 @@ app.post('/signup', async (req, res) => {
 
         if (newUser) {
 
-            generateToken(newUser._id, res);
             await newUser.save();
+            generateToken(newUser._id, res);
             res.status(201).json({ _id: newUser._id, email: newUser.email, username: newUser.username });
 
         }

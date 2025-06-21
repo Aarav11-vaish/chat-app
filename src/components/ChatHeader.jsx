@@ -7,6 +7,7 @@ const ChatHeader = () => {
 
   if (!selectedusers) return null;
 
+console.log(selectedusers._id);
 
   return (
     <div className="p-2.5 border-b border-base-300">

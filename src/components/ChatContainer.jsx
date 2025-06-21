@@ -6,16 +6,17 @@ import Input_send from "./Input_send";
 import NoChatSelected from "./NoChatSelected";
 
 function ChatContainer() {
-  const { messages, getMessages, selectedusers, ismessagesloading } = chatStore();
+  const { messages, getMessages, selectedusers , sendMessages} = chatStore();
   const { onlineUsers } = authStore();
   const [messageInput, setMessageInput] = useState("");
 
-  const senddata = () => {
+  const senddata = async () => {
     if (messageInput.trim() === "") return;
     console.log("Sending:", messageInput);
-    // You should call your actual sendMessage API here
-    setMessageInput("");
+    await sendMessages( selectedusers._id, messageInput);
+    setMessageInput(""); // Clear input after sendin
   };
+
 
   useEffect(() => {
     if (selectedusers && selectedusers._id) {
@@ -32,7 +33,7 @@ function ChatContainer() {
       {/* Message List */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-base-200">
         {messages.map((m, idx) => (
-          <div key={idx} className="p-2 rounded bg-white shadow text-sm max-w-md">
+          <div key={idx} className="p-2 rounded  shadow text-sm max-w-md">
             {m.text}
           </div>
         ))}
