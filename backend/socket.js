@@ -11,12 +11,17 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
+
+
 const usersocketmap= {
     // This will map user IDs to socket IDs
-
-
-
 }// {userid: socket.id}
+
+const receiverSocketMap = (userID)=>{
+    return usersocketmap[userID]
+}
+
 io.on("connection", (socket)=>{
     console.log("a user is connected with name ", socket.id);
     const userID=socket.handshake.query.userID; // Assuming userID is passed in the query string
@@ -33,7 +38,6 @@ io.on("connection", (socket)=>{
         io.emit("onlineusers", Object.keys(usersocketmap)); // Emit updated online users to all clients
     }
     );
-
 })
 
-export {io , app , server};
+export {io , app , server, receiverSocketMap};

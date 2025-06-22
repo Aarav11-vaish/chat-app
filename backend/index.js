@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import { app,server} from './socket.js'; // Importing the socket.io server instance
+import { app,server, receiverSocketMap, io} from './socket.js'; // Importing the socket.io server instance
 //  app = express();
 dotenv.config();
 app.use(cookieParser());
@@ -273,6 +273,11 @@ app.post('/send/:id', protectRoute, async(req, res)=>{
         image: image
     })
     await newmessage.save()
+    // Emit the message to the receiver's socket
+    const receiverSocketId = receiverSocketMap(id);
+    if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newmessage", newmessage);
+    }
     res.status(201).json(newmessage);
     // need to implement socket.io to send the message to the receiver in real-time
     

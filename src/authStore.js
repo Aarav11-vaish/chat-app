@@ -32,7 +32,7 @@ export const authStore = create((set, get) => ({
         set({ isSignedUp: true });
         try{
             const res =await axiosInstance.post('/signup', data);
-            console.log(res);
+            // console.log(res);
             set({ authUser: res.data});
             toast.success("Signup successful");
         }

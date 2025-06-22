@@ -14,7 +14,7 @@ import Profile from './components/Profile';
 function App() {
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
-  console.log(onlineUsers);
+  // console.log(onlineUsers);
   
   useEffect(() => {
       checkAuth();

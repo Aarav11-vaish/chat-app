@@ -6,14 +6,16 @@ import Input_send from "./Input_send";
 import NoChatSelected from "./NoChatSelected";
 import { formdate } from "../utils";
 function ChatContainer() {
-  const { messages, getMessages, selectedusers , sendMessages} = chatStore();
+  const { messages, getMessages, selectedusers , sendMessages, subscribetomessages, unsubscribetomessages } = chatStore();
   const { onlineUsers } = authStore();
   const [messageInput, setMessageInput] = useState("");
 
   const senddata = async () => {
     if (messageInput.trim() === "") return;
     console.log("Sending:", messageInput);
+
     await sendMessages( selectedusers._id, messageInput);
+  
     setMessageInput(""); // Clear input after sendin
   };
 
@@ -22,7 +24,13 @@ function ChatContainer() {
     if (selectedusers && selectedusers._id) {
       getMessages(selectedusers._id);
     }
-  }, [getMessages, selectedusers]);
+      subscribetomessages();
+
+
+    return ()=>{
+      unsubscribetomessages();
+    }
+  }, [getMessages, selectedusers, subscribetomessages, unsubscribetomessages]);
 
   if (!selectedusers) return <NoChatSelected />;
 
@@ -32,21 +40,36 @@ function ChatContainer() {
       
       {/* Message List */}
       
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-base-200">
-      {messages.map((m, idx) => (
-  <div>
-    <div className="chat-header mb-1">
-      <time className="text-xs opacity-50 ml-1">
-        {formdate(m.createdAt)}
-      </time>
-    </div>
-    <div key={idx} className="p-2 rounded shadow text-sm max-w-md">
-      {m.text}
-    </div>
-  </div>
-))}
+    <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-base-200">
+  {messages.map((m) => {
+    const isOwnMessage = m.senderID === authStore.getState().authUser._id;
 
+    return (
+      <div
+        key={m._id}
+        className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
+      >
+        <div>
+          <div className="chat-header mb-1">
+            <time className="text-xs opacity-50 ml-1">
+              {formdate(m.createdAt)}
+            </time>
+          </div>
+          <div
+            className={`p-2 rounded shadow text-sm max-w-md ${
+              isOwnMessage
+                ? "bg-red-300 text-right rounded-br-none"
+                : "bg-white text-left rounded-bl-none text-black"
+            }`}
+          >
+            {m.text}
+          </div>
+        </div>
       </div>
+    );
+  })}
+</div>
+
 
       {/* Input Bar */}
       <div className="p-4 border-t border-base-300 bg-base-100">
