@@ -12,7 +12,9 @@ import { Navigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Profile from './components/Profile';
 function App() {
-  const {authUser , checkAuth , ischeckAuthenticated }=authStore();
+  const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
+
+  console.log(onlineUsers);
   
   useEffect(() => {
       checkAuth();

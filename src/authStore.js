@@ -1,22 +1,25 @@
 import { create } from 'zustand';
 import { axiosInstance } from './axios.js';
 import toast from 'react-hot-toast';
-export const authStore = create((set) => ({
+import { disconnect } from 'mongoose';
+import { io } from 'socket.io-client';
+export const authStore = create((set, get) => ({
     authUser: null,
     isSignedUp: false,
     isLoggedIn: false,
     isProfileUpdated: false,
     ischeckAuthenticated: true,
-    onlineUsers:[],
+    onlineUsers: [],
+    socket: null,
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get('/checkAuth')
             // const res =await fetch('http://localhost:5000/checkAuth');
             set({ authUser: res.data });
+            get().connectsocket();
+
             console.log(res);
-
-
-        }
+        }     
         catch (err) {
             console.error(err, "Error in checkAuth");
             set({ authUser: null });
@@ -47,6 +50,7 @@ set({ isLoggedIn: true });
         const res =await axiosInstance.post('/login', data);
         console.log(res);
         set({ authUser: res.data });
+        get().connectsocket();
         toast.success("Login successful");
       } 
       catch(e){
@@ -63,6 +67,7 @@ set({ isLoggedIn: false });
             set({ authUser:null});
             console.log(res);
             toast.success("Logout successful");
+            get().disconnectsocket();
         }
         catch(e){
             console.error(e, "Error in logout");
@@ -98,6 +103,33 @@ set({ isLoggedIn: false });
         toast.error("Profile update failed");
     } finally {
         set({ isProfileUpdated: false });
+    }
+},
+connectsocket: () => {
+    const { authUser } = get();
+    if (!authUser|| get().socket?.connected) {
+
+        console.error("User not authenticated, cannot connect socket");
+        return;
+    }
+
+    const socket =io("http://localhost:3000", {
+        query: { userID: authUser._id },
+        transports: ['websocket'],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+    });
+    socket.connect();
+    set({socket: socket});
+    socket.on("onlineusers", (users) => {
+        set({ onlineUsers: users });
+    });
+    console.log("Socket connected");
+}, 
+disconnectsocket: () => {
+     if(get().socket?.connected) {
+        get().socket.disconnect();
+        console.log("Socket disconnected");
     }
 }
 

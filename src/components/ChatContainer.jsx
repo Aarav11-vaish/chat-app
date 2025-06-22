@@ -4,7 +4,7 @@ import { authStore } from "../authStore";
 import ChatHeader from "./ChatHeader";
 import Input_send from "./Input_send";
 import NoChatSelected from "./NoChatSelected";
-
+import { formdate } from "../utils";
 function ChatContainer() {
   const { messages, getMessages, selectedusers , sendMessages} = chatStore();
   const { onlineUsers } = authStore();
@@ -31,12 +31,21 @@ function ChatContainer() {
       <ChatHeader />
       
       {/* Message List */}
+      
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-base-200">
-        {messages.map((m, idx) => (
-          <div key={idx} className="p-2 rounded  shadow text-sm max-w-md">
-            {m.text}
-          </div>
-        ))}
+      {messages.map((m, idx) => (
+  <div>
+    <div className="chat-header mb-1">
+      <time className="text-xs opacity-50 ml-1">
+        {formdate(m.createdAt)}
+      </time>
+    </div>
+    <div key={idx} className="p-2 rounded shadow text-sm max-w-md">
+      {m.text}
+    </div>
+  </div>
+))}
+
       </div>
 
       {/* Input Bar */}

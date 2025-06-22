@@ -5,9 +5,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-const app = express();
+import { app,server} from './socket.js'; // Importing the socket.io server instance
+//  app = express();
 dotenv.config();
 app.use(cookieParser());
+
 
 //apply cors
 app.use(cors({
@@ -306,7 +308,7 @@ res.status(200).json(messages);
         res.status(500).json({ error: "Internal server error" });
     }
 })
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
 
