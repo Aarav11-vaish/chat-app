@@ -105,9 +105,9 @@ login(formdata)
           <div className="text-center">
             <p className="text-base-content/60">
               Don't have an account?{" "}
-              <Link to="/signup" className="link link-primary">
-                Create account
-              </Link>
+              <a href="/login" className="text-primary font-medium hover:underline">
+              Login
+            </a>
             </p>
           </div>
         </div>
