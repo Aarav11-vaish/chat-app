@@ -5,7 +5,7 @@ import { Users } from "lucide-react";
 import { useState } from "react";
 
 function Sidebar(){
-    const {showOnlineOnly, setShowOnlineOnly} = useState(false);
+    const [showOnlineOnly, setShowOnlineOnly] = useState(false);
     const {getUsers, users , setSelectedUser, selectedusers, isuserloading }=chatStore()
     const {onlineUsers}=authStore();
     useEffect(()=>{
@@ -18,8 +18,7 @@ function Sidebar(){
      const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
-    console.log(users, "users in sidebar"); 
-    console.log("onlineUsers", onlineUsers);
+
     
     
     return(
