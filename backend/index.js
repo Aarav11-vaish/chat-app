@@ -1,15 +1,19 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { app,server, receiverSocketMap, io} from './socket.js'; // Importing the socket.io server instance
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import sendVerificationEmail from './utils_mailer.js'; 
 //  app = express();
-dotenv.config();
 app.use(cookieParser());
 
+app.use(express.json());
 
 //apply cors
 app.use(cors({
@@ -17,7 +21,6 @@ app.use(cors({
   credentials: true,              // allow cookies, auth headers
 }));
 
-app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/chat-app");
 
@@ -38,6 +41,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+     isVerified: { type: Boolean, default: false },
+     verificationToken: { type: String},
 
 },
     { timestamps: true }
@@ -69,6 +74,39 @@ const messagingSchema = new mongoose.Schema({
 const messageModel = mongoose.model("Message", messagingSchema);
 const User = mongoose.model("User", userSchema);
 
+
+app.get('/verify-email/:token', async (req, res) => {
+  const { token } = req.params;
+  try {
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      // Check if already verified user exists (optional enhancement)
+      const alreadyVerifiedUser = await User.findOne({
+        isVerified: true,
+        verificationToken: null,
+      });
+
+      if (alreadyVerifiedUser) {
+        return res.status(200).json({ message: "Already verified" });
+      }
+
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = null;
+
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (e) {
+    console.log("Error in email verification:", e);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 app.post('/login', async (req, res) => {
 
 
@@ -78,6 +116,9 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ error: "All fields are required" });
         }
         const user = await User.findOne({ email });
+        if(!user.isVerified){
+            return res.status(500).json({error:"please verify your email"});
+        }
         if (!user) {
             return res.status(400).json({ error: "User does not exist" });
         }
@@ -205,22 +246,25 @@ app.post('/signup', async (req, res) => {
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+        const verificationToken = crypto.randomBytes(32).toString('hex');
 
 
 
         const newUser = new User({
             email,
             username,
-            password: hashedPassword
+            password: hashedPassword,
+            verificationToken
         });
         // res.status(200).json({message: "Signup successful"});
 
         if (newUser) {
 
             await newUser.save();
-            generateToken(newUser._id, res);
+            await sendVerificationEmail(email, verificationToken); // Send verification email
+            // generateToken(newUser._id, res);
             res.status(201).json({ _id: newUser._id, email: newUser.email, username: newUser.username });
-
+            console.log("Signup successful, verification email sent to:", email);
         }
         else {
             res.status(400).json({ error: "Signup failed" });
@@ -231,6 +275,8 @@ app.post('/signup', async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+
 app.get('/logout', (req, res) => {
     try {
         res.cookie("jwt", "", {

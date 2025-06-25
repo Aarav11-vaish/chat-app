@@ -11,6 +11,8 @@ import { Loader, LogIn } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Profile from './components/Profile';
+import Email_verification from './components/email_verification';
+
 function App() {
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
@@ -42,6 +44,7 @@ function App() {
           <Route path="/signup" element={!authUser? <Signup/>: <Navigate to ="/"/> } />
           <Route path="/login" element={!authUser? <Login/>: <Navigate to='/'/>} />
           <Route path="/profile" element ={!authUser? <Navigate to="/login"/> : <Profile/>} />
+          <Route path="/verify-email/:token" element={<Email_verification />} />
 
         </Routes>
      <Toaster />
