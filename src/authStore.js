@@ -51,11 +51,19 @@ set({ isLoggedIn: true });
         console.log(res);
         set({ authUser: res.data });
         get().connectsocket();
+       
         toast.success("Login successful");
       } 
       catch(e){
-        console.error(e, "Error in login");
-        toast.error("Login failed");
+        // if the user does not exist then say "User does not exist"
+        if (e.response && e.response.status === 400) {
+          toast.error("User does not exist");
+        } else if (e.response && e.response.status === 500) {
+          toast.error("email verification required");
+        } else {
+          toast.error("Login failed");
+        }
+        
       }
       finally{
 set({ isLoggedIn: false });

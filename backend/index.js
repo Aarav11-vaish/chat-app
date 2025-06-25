@@ -116,11 +116,11 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ error: "All fields are required" });
         }
         const user = await User.findOne({ email });
-        if(!user.isVerified){
-            return res.status(500).json({error:"please verify your email"});
-        }
         if (!user) {
             return res.status(400).json({ error: "User does not exist" });
+        }
+        if(!user.isVerified){
+            return res.status(500).json({error:"please verify your email"});
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
