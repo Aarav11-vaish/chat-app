@@ -7,10 +7,31 @@ export const chatStore = create((set, get) => ({
     messages: [],
     users: [],
 selectedusers:null,
-    isuserloading: false    ,
+    isuserloading: false,
     ismessagesloading: false,
+    chatMode: 'personal',
+    groups:[], 
+    isGroupLoading:false, 
+    selectedGroups:null,
 
-    getUsers: async () => {
+    setChatMode: (mode) => set({ chatMode: mode }),
+    setSelectedGroups: (selectedGroups) => set({ selectedGroups }),
+    getGroups: async ()=>{
+        set({isGroupLoading: true});
+        try{
+            const res =await axiosInstance.get('/my-groups');
+            set({groups: res.data});
+        }
+        catch (e) {
+            toast.error("Error in fetching groups");
+            console.error(e);
+        }
+        finally {
+            set({isGroupLoading: false});
+        }
+    }, 
+    
+       getUsers: async () => {
         set({ isuserloading: true });
         try {
             const res = await axiosInstance.get('/users');

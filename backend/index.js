@@ -6,10 +6,10 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-import { app,server, receiverSocketMap, io} from './socket.js'; // Importing the socket.io server instance
+import { app, server, receiverSocketMap, io } from './socket.js'; // Importing the socket.io server instance
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-import sendVerificationEmail from './utils_mailer.js'; 
+import sendVerificationEmail from './utils_mailer.js';
 import { use } from 'react';
 import { stat } from 'fs';
 // import Group from './group.js'; // Importing the Group model
@@ -20,8 +20,8 @@ app.use(express.json());
 
 //apply cors
 app.use(cors({
-  origin: 'http://localhost:5173', // your Vite frontend
-  credentials: true,              // allow cookies, auth headers
+    origin: 'http://localhost:5173', // your Vite frontend
+    credentials: true,              // allow cookies, auth headers
 }));
 
 
@@ -44,8 +44,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
-     isVerified: { type: Boolean, default: false },
-     verificationToken: { type: String},
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
 
 },
     { timestamps: true }
@@ -53,38 +53,38 @@ const userSchema = new mongoose.Schema({
 
 
 const messagingSchema = new mongoose.Schema({
-    senderID:{
+    senderID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    receiverID:{
-        type:mongoose.Schema.Types.ObjectId,
+    receiverID: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
 
     },
-    text:{
+    text: {
         type: String,
-    }, 
+    },
     image: {
         type: String,
     },
-    }, {
-        timestamps: true
-    }
+}, {
+    timestamps: true
+}
 )
 
-const groupSchema =new mongoose.Schema ({
+const groupSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
     },
-    roomid:{
+    roomid: {
         type: String,
         required: true,
         unique: true,
-    }, 
+    },
     ispublic: {
         type: Boolean,
         default: true,
@@ -98,30 +98,30 @@ const groupSchema =new mongoose.Schema ({
         type: mongoose.Schema.Types.ObjectId, // Reference to the User model
         ref: 'User',
     }],
-    
-    
-}, {timestamps: true});
+
+
+}, { timestamps: true });
 
 const invitationSchema = new mongoose.Schema({
     groupid: {
         type: mongoose.Schema.Types.ObjectId,// Reference to the Group model
         ref: 'Group',
         required: true
-    }, 
+    },
     userid: {
         type: mongoose.Schema.Types.ObjectId, // Reference to the User model
         ref: 'User',
         required: true
-    }, 
-    status:{
+    },
+    status: {
         type: String,
         enum: ['pending', 'accepted', 'rejected'],
         default: 'pending'
-    }, 
+    },
 
 
 
-}, {timestamps: true});
+}, { timestamps: true });
 
 
 const messageModel = mongoose.model("Message", messagingSchema);
@@ -134,12 +134,12 @@ const protectRoute = async (req, res, next) => {
     try {
         const token = req.cookies.jwt;
         // console.log("Token:", token);
-        
+
         if (!token) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
+
         const user = await User.findById(decoded.userid);
         if (!user) {
             return res.status(401).json({ error: "Unauthorized" });
@@ -156,38 +156,38 @@ const protectRoute = async (req, res, next) => {
 // The protectRoute function is a middleware that checks for a valid JWT token in the request cookies.
 // If the token is valid, it retrieves the user from the database and attaches it to the request object.
 
-app.post("/create-group", protectRoute ,async (req, res)=>{
-const {name , ispublic}= req.body;
-let roomid="";
-while(true){
-    roomid= roomID_generator();
-    const existingUser = await Group.findOne({roomid});
-    if(!existingUser) break;
-}
+app.post("/create-group", protectRoute, async (req, res) => {
+    const { name, ispublic } = req.body;
+    let roomid = "";
+    while (true) {
+        roomid = roomID_generator();
+        const existingUser = await Group.findOne({ roomid });
+        if (!existingUser) break;
+    }
 
-  const new_group = new Group({
-    name,
-    roomid,
-    ispublic,
-    owner: req.user._id,
-    members: [req.user._id]
-  });
+    const new_group = new Group({
+        name,
+        roomid,
+        ispublic,
+        owner: req.user._id,
+        members: [req.user._id]
+    });
 
-  await new_group.save();
-  res.status(201).json(new_group);
+    await new_group.save();
+    res.status(201).json(new_group);
 })
 
-app.post("/join-root/:roomid", protectRoute, async (req , res)=>{
-    const {roomid} =req.params;
-    const group = await Group.findOne({roomid});
-    if(!group){
-        return res.status(404).json({error: "Group not found"});
-        }
-
-          if (group.members.includes(req.user._id)) {
-      return res.status(200).json({ message: "Already a member of this group", group });
+app.post("/join-root/:roomid", protectRoute, async (req, res) => {
+    const { roomid } = req.params;
+    const group = await Group.findOne({ roomid });
+    if (!group) {
+        return res.status(404).json({ error: "Group not found" });
     }
-    if(group.ispublic){
+
+    if (group.members.includes(req.user._id)) {
+        return res.status(200).json({ message: "Already a member of this group", group });
+    }
+    if (group.ispublic) {
         group.members.push(req.user._id);
         console.log("User joined the group:", req.user._id);
         await group.save();
@@ -197,8 +197,8 @@ app.post("/join-root/:roomid", protectRoute, async (req , res)=>{
         groupid: group._id,
         userid: req.user._id,
     });
-    if(existingInvitation){
-        return res.status(400).json({error: "Invitation already sent", status: existingInvitation.status});
+    if (existingInvitation) {
+        return res.status(400).json({ error: "Invitation already sent", status: existingInvitation.status });
     }
 
     const newInvitation = new Invitation({
@@ -206,79 +206,79 @@ app.post("/join-root/:roomid", protectRoute, async (req , res)=>{
         userid: req.user._id,
     });
     await newInvitation.save();
-    res.status(200).json({ message: "Invitation sent to the group owner"})
+    res.status(200).json({ message: "Invitation sent to the group owner" })
 
 })
 
 app.get("/group/:roomid/invitations", protectRoute, async (req, res) => {
-const groupData = await Group.findOne({ roomid: req.params.roomid });
-console.log(groupData);
+    const groupData = await Group.findOne({ roomid: req.params.roomid });
+    console.log(groupData);
 
-if(!groupData){
-    return res.status(404).json({ error:"group not found"});
-}
-if(groupData.owner.toString()!==req.user._id.toString()){
-    return res.status(403).json({error:"only owner can view the requests"})
-}
-  const invitations = await Invitation
-    .find({ groupid: groupData._id, status: "pending" })
-    .populate("userid", "username email");
-  res.status(200).json(invitations);
+    if (!groupData) {
+        return res.status(404).json({ error: "group not found" });
+    }
+    if (groupData.owner.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ error: "only owner can view the requests" })
+    }
+    const invitations = await Invitation
+        .find({ groupid: groupData._id, status: "pending" })
+        .populate("userid", "username email");
+    res.status(200).json(invitations);
 })
 
-app.post("/group/:roomid/invite-actions",  protectRoute, async (req , res)=>{
-      const { userId, action } = req.body; 
-      if (!["accept", "reject"].includes(action)) {
-    return res.status(400).json({ error: "Invalid action" });
-  }
-  const groupData = await Group.findOne({ roomid: req.params.roomid });
+app.post("/group/:roomid/invite-actions", protectRoute, async (req, res) => {
+    const { userId, action } = req.body;
+    if (!["accept", "reject"].includes(action)) {
+        return res.status(400).json({ error: "Invalid action" });
+    }
+    const groupData = await Group.findOne({ roomid: req.params.roomid });
 
-  if (!groupData || groupData.owner.toString() !== req.user._id.toString()) {
-    return res.status(403).json({ error: "Unauthorized" });
-  }
+    if (!groupData || groupData.owner.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ error: "Unauthorized" });
+    }
 
-  const invitation = await Invitation.findOne({
-    groupid: groupData._id,
-    userid: userId,
-  });
+    const invitation = await Invitation.findOne({
+        groupid: groupData._id,
+        userid: userId,
+    });
 
-  if (!invitation) return res.status(404).json({ error: "Invitation not found" });
+    if (!invitation) return res.status(404).json({ error: "Invitation not found" });
 
-  invitation.status = action;
-  await invitation.save();
+    invitation.status = action;
+    await invitation.save();
 
-  if (action === "accept") {
-    groupData.members.push(req.userId);
-    await groupData.save();
-  }
+    if (action === "accept") {
+        groupData.members.push(req.userId);
+        await groupData.save();
+    }
 
-  res.status(200).json({ message: `Invitation ${action}ed`, group: groupData });
+    res.status(200).json({ message: `Invitation ${action}ed`, group: groupData });
 })
 
 app.get('/verify-email/:token', async (req, res) => {
     const { token } = req.params;
     try {
         const user = await User.findOne({ verificationToken: token });
-        
+
         if (!user) {
             // Check if already verified user exists (optional enhancement)
             const alreadyVerifiedUser = await User.findOne({
                 isVerified: true,
                 verificationToken: null,
             });
-            
+
             if (alreadyVerifiedUser) {
                 return res.status(200).json({ message: "Already verified" });
             }
-            
+
             return res.status(400).json({ error: "Invalid or expired token" });
         }
-        
+
         user.isVerified = true;
         user.verificationToken = null;
-        
+
         await user.save();
-        
+
         res.status(200).json({ message: "Email verified successfully" });
     } catch (e) {
         console.log("Error in email verification:", e);
@@ -288,8 +288,8 @@ app.get('/verify-email/:token', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-    
-    
+
+
     try {
         const { email, password } = req.body;
         if (!email || !password) {
@@ -299,16 +299,16 @@ app.post('/login', async (req, res) => {
         if (!user) {
             return res.status(400).json({ error: "User does not exist" });
         }
-        if(!user.isVerified){
-            return res.status(500).json({error:"please verify your email"});
+        if (!user.isVerified) {
+            return res.status(500).json({ error: "please verify your email" });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ error: "Invalid credentials" });
         }
-        
-        
-        
+
+
+
         const token = generateToken(user._id, res);
         res.status(200).json({
             _id: user._id,
@@ -323,6 +323,18 @@ app.post('/login', async (req, res) => {
     }
 })
 
+
+app.get("/my-groups",  protectRoute , async (req, res)=>{
+    try{
+         const groups =await Group.find({ members: req.user._id });
+         res.status(200).json(groups);
+
+    }
+    catch(e){
+res.status(500).json({ error: "Internal server error" });
+        console.error("Error in fetching groups:", e);
+    }
+})
 
 const generateToken = (userid, res) => {
     const token = jwt.sign({ userid }, process.env.JWT_SECRET, {
@@ -342,50 +354,50 @@ const generateToken = (userid, res) => {
 // This token can be used for authentication in subsequent requests, allowing the server to verify the user's identity without requiring them to log in again.
 
 app.put('/profileupdate', protectRoute, async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const { fullName, password } = req.body;
+    try {
+        const userId = req.user._id;
+        const { fullName, password } = req.body;
 
-    const updateFields = {};
+        const updateFields = {};
 
-    if (fullName && fullName.trim().length > 0) {
-      updateFields.username = fullName;
+        if (fullName && fullName.trim().length > 0) {
+            updateFields.username = fullName;
+        }
+
+        if (password && password.trim().length > 0) {
+            if (password.length < 6) {
+                return res.status(400).json({ error: "Password must be at least 6 characters long" });
+            }
+            updateFields.password = await bcrypt.hash(password, 10);
+        }
+
+        if (Object.keys(updateFields).length === 0) {
+            return res.status(400).json({ error: "No valid fields provided to update" });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const token = generateToken(updatedUser._id, res);
+
+        res.status(200).json({
+            _id: updatedUser._id,
+            email: updatedUser.email,
+            username: updatedUser.username,
+            token: token
+        });
+    } catch (err) {
+        console.error("Error in profile update:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-
-    if (password && password.trim().length > 0) {
-      if (password.length < 6) {
-        return res.status(400).json({ error: "Password must be at least 6 characters long" });
-      }
-      updateFields.password = await bcrypt.hash(password, 10);
-    }
-
-    if (Object.keys(updateFields).length === 0) {
-      return res.status(400).json({ error: "No valid fields provided to update" });
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true });
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const token = generateToken(updatedUser._id, res);
-
-    res.status(200).json({
-      _id: updatedUser._id,
-      email: updatedUser.email,
-      username: updatedUser.username,
-      token: token
-    });
-  } catch (err) {
-    console.error("Error in profile update:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 
 app.post('/signup', async (req, res) => {
-    const { fullName: username,email, password } = req.body;
+    const { fullName: username, email, password } = req.body;
     try {
         if (!email || !username || !password) {
             return res.status(400).json({ error: "All fields are required" });
@@ -447,25 +459,25 @@ app.get('/logout', (req, res) => {
 
 })
 
-app.get('/users', protectRoute,async (req, res)=>{
-try{
+app.get('/users', protectRoute, async (req, res) => {
+    try {
 
-    const loggedinuser= req.user;
-    const users =await User.find({_id: {$ne:loggedinuser._id}}).select("-password");// Exclude password from the response
-    res.status(200).json(users);
-}
-catch(err){
-    console.error(err, "Error in fetching users");
-    res.status(500).json({ error: "Internal server error" });
-}
+        const loggedinuser = req.user;
+        const users = await User.find({ _id: { $ne: loggedinuser._id } }).select("-password");// Exclude password from the response
+        res.status(200).json(users);
+    }
+    catch (err) {
+        console.error(err, "Error in fetching users");
+        res.status(500).json({ error: "Internal server error" });
+    }
 })
 
 
-app.post('/send/:id', protectRoute, async(req, res)=>{
-    const {id} = req.params;
+app.post('/send/:id', protectRoute, async (req, res) => {
+    const { id } = req.params;
     const { text, image } = req.body;
     const senderID = req.user._id;
-    const newmessage=new messageModel({
+    const newmessage = new messageModel({
         senderID: senderID,
         receiverID: id,
         text: text,
@@ -479,7 +491,7 @@ app.post('/send/:id', protectRoute, async(req, res)=>{
     }
     res.status(201).json(newmessage);
     // need to implement socket.io to send the message to the receiver in real-time
-    
+
 })
 app.get('/checkAuth', protectRoute, (req, res) => {
     try {
@@ -487,23 +499,23 @@ app.get('/checkAuth', protectRoute, (req, res) => {
     }
     catch (err) {
         console.error(err, "Error in checkAuth");
-        
+
         res.status(500).json({ error: "Internal server error" });
     }
 })
 
 app.get('/:id', protectRoute, async (req, res) => {
-    try{
-const {id}=req.params;
-const senderID = req.user._id;
-const messages= await messageModel.find({
-    $or: [
-        { senderID: senderID, receiverID: id },
-        { senderID: id, receiverID: senderID }
-    ]
-})
+    try {
+        const { id } = req.params;
+        const senderID = req.user._id;
+        const messages = await messageModel.find({
+            $or: [
+                { senderID: senderID, receiverID: id },
+                { senderID: id, receiverID: senderID }
+            ]
+        })
 
-res.status(200).json(messages);
+        res.status(200).json(messages);
 
 
     }
