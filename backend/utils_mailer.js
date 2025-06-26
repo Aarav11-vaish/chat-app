@@ -2,11 +2,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 import nodemailer from 'nodemailer';
 
-// Debug logs
-console.log("MAIL_USER:", process.env.MAIL_USER);
-console.log("MAIL_PASS:", process.env.MAIL_PASS ? "✅ Present" : "❌ Missing");
-console.log("MAIL_FROM_NAME:", process.env.MAIL_FROM_NAME);
-console.log("MAIL_FROM_EMAIL:", process.env.MAIL_FROM_EMAIL ? "✅ Present" : "❌ Missing");
+// // Debug logs
+// console.log("MAIL_USER:", process.env.MAIL_USER);
+// console.log("MAIL_PASS:", process.env.MAIL_PASS ? "✅ Present" : "❌ Missing");
+// console.log("MAIL_FROM_NAME:", process.env.MAIL_FROM_NAME);
+// console.log("MAIL_FROM_EMAIL:", process.env.MAIL_FROM_EMAIL ? "✅ Present" : "❌ Missing");
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',

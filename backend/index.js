@@ -10,6 +10,7 @@ import { app,server, receiverSocketMap, io} from './socket.js'; // Importing the
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js'; 
+// import Group from './group.js'; // Importing the Group model
 //  app = express();
 app.use(cookieParser());
 
@@ -71,45 +72,77 @@ const messagingSchema = new mongoose.Schema({
     timestamps: true
     }
 )
+
+const groupSchema =new mongoose.Schema ({
+    name: {
+        type: String,
+        required: true,
+    },
+    roomid:{
+        type: String,
+        required: true,
+        unique: true,
+    }, 
+    ispublic: {
+        type: Boolean,
+        default: true,
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        ref: 'User',
+        required: true,
+    },
+    members: [{
+        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        ref: 'User',
+    }],
+
+
+}, {timestamps: true});
+
 const messageModel = mongoose.model("Message", messagingSchema);
 const User = mongoose.model("User", userSchema);
+const group =mongoose.model("Group", groupSchema);
+const roomID_generator=()=>{
+    return Math.random().toString().slice(2, 8);
+}
 
 
 app.get('/verify-email/:token', async (req, res) => {
-  const { token } = req.params;
-  try {
-    const user = await User.findOne({ verificationToken: token });
-
-    if (!user) {
-      // Check if already verified user exists (optional enhancement)
-      const alreadyVerifiedUser = await User.findOne({
-        isVerified: true,
-        verificationToken: null,
-      });
-
-      if (alreadyVerifiedUser) {
-        return res.status(200).json({ message: "Already verified" });
-      }
-
-      return res.status(400).json({ error: "Invalid or expired token" });
+    const { token } = req.params;
+    try {
+        const user = await User.findOne({ verificationToken: token });
+        
+        if (!user) {
+            // Check if already verified user exists (optional enhancement)
+            const alreadyVerifiedUser = await User.findOne({
+                isVerified: true,
+                verificationToken: null,
+            });
+            
+            if (alreadyVerifiedUser) {
+                return res.status(200).json({ message: "Already verified" });
+            }
+            
+            return res.status(400).json({ error: "Invalid or expired token" });
+        }
+        
+        user.isVerified = true;
+        user.verificationToken = null;
+        
+        await user.save();
+        
+        res.status(200).json({ message: "Email verified successfully" });
+    } catch (e) {
+        console.log("Error in email verification:", e);
+        res.status(500).json({ error: "Internal server error" });
     }
-
-    user.isVerified = true;
-    user.verificationToken = null;
-
-    await user.save();
-
-    res.status(200).json({ message: "Email verified successfully" });
-  } catch (e) {
-    console.log("Error in email verification:", e);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 
 app.post('/login', async (req, res) => {
-
-
+    
+    
     try {
         const { email, password } = req.body;
         if (!email || !password) {
@@ -126,9 +159,9 @@ app.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ error: "Invalid credentials" });
         }
-
-
-
+        
+        
+        
         const token = generateToken(user._id, res);
         res.status(200).json({
             _id: user._id,
@@ -148,12 +181,12 @@ const protectRoute = async (req, res, next) => {
     try {
         const token = req.cookies.jwt;
         // console.log("Token:", token);
-
+        
         if (!token) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+        
         const user = await User.findById(decoded.userid);
         if (!user) {
             return res.status(401).json({ error: "Unauthorized" });
@@ -169,6 +202,27 @@ const protectRoute = async (req, res, next) => {
 // what will this function do?
 // The protectRoute function is a middleware that checks for a valid JWT token in the request cookies.
 // If the token is valid, it retrieves the user from the database and attaches it to the request object.
+
+app.post("/create-group", protectRoute ,async (req, res)=>{
+const {name , ispublic}= req.body;
+const roomid="";
+while(true){
+    roomid= roomID_generator();
+    const existingUser = await group.findOne({roomid});
+    if(!existingUser) break;
+}
+
+  const group = new Group({
+    name,
+    roomid,
+    ispublic,
+    owner: req.user._id,
+    members: [req.user._id]
+  });
+
+  await group.save();
+  res.status(201).json(group);
+})
 
 
 const generateToken = (userid, res) => {
