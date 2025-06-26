@@ -10,6 +10,8 @@ import { app,server, receiverSocketMap, io} from './socket.js'; // Importing the
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js'; 
+import { use } from 'react';
+import { stat } from 'fs';
 // import Group from './group.js'; // Importing the Group model
 //  app = express();
 app.use(cookieParser());
@@ -69,7 +71,7 @@ const messagingSchema = new mongoose.Schema({
         type: String,
     },
     }, {
-    timestamps: true
+        timestamps: true
     }
 )
 
@@ -96,17 +98,162 @@ const groupSchema =new mongoose.Schema ({
         type: mongoose.Schema.Types.ObjectId, // Reference to the User model
         ref: 'User',
     }],
+    
+    
+}, {timestamps: true});
+
+const invitationSchema = new mongoose.Schema({
+    groupid: {
+        type: mongoose.Schema.Types.ObjectId,// Reference to the Group model
+        ref: 'Group',
+        required: true
+    }, 
+    userid: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        ref: 'User',
+        required: true
+    }, 
+    status:{
+        type: String,
+        enum: ['pending', 'accepted', 'rejected'],
+        default: 'pending'
+    }, 
+
 
 
 }, {timestamps: true});
 
+
 const messageModel = mongoose.model("Message", messagingSchema);
 const User = mongoose.model("User", userSchema);
-const group =mongoose.model("Group", groupSchema);
-const roomID_generator=()=>{
-    return Math.random().toString().slice(2, 8);
+const Group = mongoose.model("Group", groupSchema);
+const Invitation = mongoose.model("Invitation", invitationSchema);
+const roomID_generator = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+const protectRoute = async (req, res, next) => {
+    try {
+        const token = req.cookies.jwt;
+        // console.log("Token:", token);
+        
+        if (!token) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        const user = await User.findById(decoded.userid);
+        if (!user) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        req.user = user;
+        next();
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+// what will this function do?
+// The protectRoute function is a middleware that checks for a valid JWT token in the request cookies.
+// If the token is valid, it retrieves the user from the database and attaches it to the request object.
+
+app.post("/create-group", protectRoute ,async (req, res)=>{
+const {name , ispublic}= req.body;
+let roomid="";
+while(true){
+    roomid= roomID_generator();
+    const existingUser = await Group.findOne({roomid});
+    if(!existingUser) break;
 }
 
+  const new_group = new Group({
+    name,
+    roomid,
+    ispublic,
+    owner: req.user._id,
+    members: [req.user._id]
+  });
+
+  await new_group.save();
+  res.status(201).json(new_group);
+})
+
+app.post("/join-root/:roomid", protectRoute, async (req , res)=>{
+    const {roomid} =req.params;
+    const group = await Group.findOne({roomid});
+    if(!group){
+        return res.status(404).json({error: "Group not found"});
+        }
+
+          if (group.members.includes(req.user._id)) {
+      return res.status(200).json({ message: "Already a member of this group", group });
+    }
+    if(group.ispublic){
+        group.members.push(req.user._id);
+        console.log("User joined the group:", req.user._id);
+        await group.save();
+        return res.status(200).json({ message: "Joined the group successfully", group });
+    }
+    const existingInvitation = await Invitation.findOne({
+        groupid: group._id,
+        userid: req.user._id,
+    });
+    if(existingInvitation){
+        return res.status(400).json({error: "Invitation already sent", status: existingInvitation.status});
+    }
+
+    const newInvitation = new Invitation({
+        groupid: group._id,
+        userid: req.user._id,
+    });
+    await newInvitation.save();
+    res.status(200).json({ message: "Invitation sent to the group owner"})
+
+})
+
+app.get("/group/:roomid/invitations", protectRoute, async (req, res) => {
+const groupData = await Group.findOne({ roomid: req.params.roomid });
+console.log(groupData);
+
+if(!groupData){
+    return res.status(404).json({ error:"group not found"});
+}
+if(groupData.owner.toString()!==req.user._id.toString()){
+    return res.status(403).json({error:"only owner can view the requests"})
+}
+  const invitations = await Invitation
+    .find({ groupid: groupData._id, status: "pending" })
+    .populate("userid", "username email");
+  res.status(200).json(invitations);
+})
+
+app.post("/group/:roomid/invite-actions",  protectRoute, async (req , res)=>{
+      const { userId, action } = req.body; 
+      if (!["accept", "reject"].includes(action)) {
+    return res.status(400).json({ error: "Invalid action" });
+  }
+  const groupData = await Group.findOne({ roomid: req.params.roomid });
+
+  if (!groupData || groupData.owner.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  const invitation = await Invitation.findOne({
+    groupid: groupData._id,
+    userid: userId,
+  });
+
+  if (!invitation) return res.status(404).json({ error: "Invitation not found" });
+
+  invitation.status = action;
+  await invitation.save();
+
+  if (action === "accept") {
+    groupData.members.push(req.userId);
+    await groupData.save();
+  }
+
+  res.status(200).json({ message: `Invitation ${action}ed`, group: groupData });
+})
 
 app.get('/verify-email/:token', async (req, res) => {
     const { token } = req.params;
@@ -174,54 +321,6 @@ app.post('/login', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Internal server error" });
     }
-})
-
-
-const protectRoute = async (req, res, next) => {
-    try {
-        const token = req.cookies.jwt;
-        // console.log("Token:", token);
-        
-        if (!token) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        const user = await User.findById(decoded.userid);
-        if (!user) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
-        req.user = user;
-        next();
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Internal server error" });
-    }
-}
-// what will this function do?
-// The protectRoute function is a middleware that checks for a valid JWT token in the request cookies.
-// If the token is valid, it retrieves the user from the database and attaches it to the request object.
-
-app.post("/create-group", protectRoute ,async (req, res)=>{
-const {name , ispublic}= req.body;
-const roomid="";
-while(true){
-    roomid= roomID_generator();
-    const existingUser = await group.findOne({roomid});
-    if(!existingUser) break;
-}
-
-  const group = new Group({
-    name,
-    roomid,
-    ispublic,
-    owner: req.user._id,
-    members: [req.user._id]
-  });
-
-  await group.save();
-  res.status(201).json(group);
 })
 
 
