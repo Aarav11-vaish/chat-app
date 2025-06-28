@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import Input_send from "./Input_send";
 import NoChatSelected from "./NoChatSelected";
 import { formdate } from "../utils";
-import CreateGroup from "../Group/CreateGroup"
+import CreateGroup from "../Group/CreateGroup";
 
 function ChatContainer() {
   const {
@@ -25,9 +25,7 @@ function ChatContainer() {
 
   const senddata = async () => {
     if (messageInput.trim() === "") return;
-    console.log("Sending:", messageInput);
 
-    // Use group._id or user._id depending on chat mode
     const receiverId = chatMode === "group" ? selectedGroups?._id : selectedusers?._id;
     if (!receiverId) return;
 
@@ -35,7 +33,7 @@ function ChatContainer() {
     setMessageInput("");
   };
 
-  // Personal chat message fetching
+  // Fetch personal messages when user is selected
   useEffect(() => {
     if (chatMode === "personal" && selectedusers?._id) {
       getMessages(selectedusers._id);
@@ -44,14 +42,15 @@ function ChatContainer() {
     }
   }, [chatMode, selectedusers, getMessages, subscribetomessages, unsubscribetomessages]);
 
+  // ✅ CASE: No group selected
   if (chatMode === "group" && !selectedGroups) {
-    return (
-    <CreateGroup/>
-    );
+    return <CreateGroup />;
   }
 
-  if (chatMode === "personal" && !selectedusers) return <NoChatSelected />;
-  if (chatMode === "group" && !selectedGroups) return null;
+  // ✅ CASE: No personal chat selected
+  // if (chatMode === "personal" && !selectedusers) {
+  //   return <NoChatSelected />;
+  // }
 
   const isGroup = chatMode === "group";
   const chatTarget = isGroup ? selectedGroups : selectedusers;
@@ -60,7 +59,6 @@ function ChatContainer() {
     <div className="flex-1 flex flex-col overflow-hidden">
       <ChatHeader />
 
-      {/* Message List */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-base-200">
         {messages.map((m) => {
           const isOwnMessage = m.senderID === authUser?._id;
@@ -91,7 +89,6 @@ function ChatContainer() {
         })}
       </div>
 
-      {/* Input Bar */}
       <div className="p-4 border-t border-base-300 bg-base-100">
         <Input_send
           messageInput={messageInput}
