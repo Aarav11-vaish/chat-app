@@ -1,6 +1,7 @@
 import { useState } from "react";
-
+import { useNavigate} from "react-router-dom";
 function CreateGroup(){
+  const navigate = useNavigate();
  return (
       <div className="flex-1 flex flex-col items-center justify-center text-center">
         <h2 className="text-xl font-bold mb-2">Group Mode Active</h2>
@@ -8,7 +9,7 @@ function CreateGroup(){
           Select a group from the sidebar or create a new one.
         </p>
         <button
-          onClick={() => alert("Show create group modal here")}
+          onClick={() => navigate("/group-page")}
           className="btn btn-primary"
         >
           + Create New Group

@@ -3,9 +3,9 @@ import { chatStore } from "../chatStore";
 import { authStore } from "../authStore";
 import ChatHeader from "./ChatHeader";
 import Input_send from "./Input_send";
-import NoChatSelected from "./NoChatSelected";
 import { formdate } from "../utils";
 import CreateGroup from "../Group/CreateGroup";
+import {useNavigate} from "react-router-dom";
 
 function ChatContainer() {
   const {
@@ -15,25 +15,24 @@ function ChatContainer() {
     selectedGroups,
     sendMessages,
     chatMode,
-    setSelectedGroups,
     subscribetomessages,
     unsubscribetomessages,
   } = chatStore();
 
-  const { onlineUsers, authUser } = authStore();
+  const { authUser } = authStore();
   const [messageInput, setMessageInput] = useState("");
 
-  const senddata = async () => {
+  const handleSendMessage = async () => {
     if (messageInput.trim() === "") return;
 
-    const receiverId = chatMode === "group" ? selectedGroups?._id : selectedusers?._id;
+    const receiverId =
+      chatMode === "group" ? selectedGroups?._id : selectedusers?._id;
     if (!receiverId) return;
 
     await sendMessages(receiverId, messageInput);
     setMessageInput("");
   };
 
-  // Fetch personal messages when user is selected
   useEffect(() => {
     if (chatMode === "personal" && selectedusers?._id) {
       getMessages(selectedusers._id);
@@ -42,18 +41,9 @@ function ChatContainer() {
     }
   }, [chatMode, selectedusers, getMessages, subscribetomessages, unsubscribetomessages]);
 
-  // ✅ CASE: No group selected
   if (chatMode === "group" && !selectedGroups) {
     return <CreateGroup />;
   }
-
-  // ✅ CASE: No personal chat selected
-  // if (chatMode === "personal" && !selectedusers) {
-  //   return <NoChatSelected />;
-  // }
-
-  const isGroup = chatMode === "group";
-  const chatTarget = isGroup ? selectedGroups : selectedusers;
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -93,7 +83,7 @@ function ChatContainer() {
         <Input_send
           messageInput={messageInput}
           setMessageInput={setMessageInput}
-          senddata={senddata}
+          senddata={handleSendMessage}
         />
       </div>
     </div>

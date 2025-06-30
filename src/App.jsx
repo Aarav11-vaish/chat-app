@@ -12,6 +12,7 @@ import { Navigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Profile from './components/Profile';
 import Email_verification from './components/email_verification';
+import GroupPage from './Group/GroupPage';
 
 function App() {
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
@@ -45,7 +46,7 @@ function App() {
           <Route path="/login" element={!authUser? <Login/>: <Navigate to='/'/>} />
           <Route path="/profile" element ={!authUser? <Navigate to="/login"/> : <Profile/>} />
           <Route path="/verify-email/:token" element={<Email_verification />} />
-
+          <Route path="/group-page" element={ <GroupPage/> }/>
         </Routes>
      <Toaster />
      </>
