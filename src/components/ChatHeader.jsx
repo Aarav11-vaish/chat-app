@@ -1,6 +1,7 @@
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { authStore } from "../authStore";
 import { chatStore } from "../chatStore";
+import { useNavigate } from "react-router-dom";
 
 const ChatHeader = () => {
   const {
@@ -10,20 +11,19 @@ const ChatHeader = () => {
     setSelectedGroups,
     chatMode,
   } = chatStore();
+
   const { onlineUsers } = authStore();
+  const navigate = useNavigate();
 
-  // Determine if we're in group mode or personal mode
   const isGroup = chatMode === "group";
-
-  // Get the active chat object based on mode
   const chatTarget = isGroup ? selectedGroups : selectedusers;
 
-  // Don’t show header if no one is selected
   if (!chatTarget) return null;
 
   return (
     <div className="p-2.5 border-b border-base-300">
       <div className="flex items-center justify-between">
+        {/* Left: Avatar and Name */}
         <div className="flex items-center gap-3">
           <div className="avatar">
             <div className="size-10 rounded-full relative">
@@ -41,13 +41,29 @@ const ChatHeader = () => {
             )}
           </div>
         </div>
-        <button
-          onClick={() => {
-            isGroup ? setSelectedGroups(null) : setSelectedUser(null);
-          }}
-        >
-          <X />
-        </button>
+
+        {/* Right: Create Group button + Close */}
+        <div className="flex items-center gap-2">
+          {isGroup && (
+            <button
+              onClick={() => navigate("/group-page")}
+              title="Create New Group"
+              className="btn btn-xs btn-outline"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">New</span>
+            </button>
+          )}
+          <button
+            onClick={() => {
+              isGroup ? setSelectedGroups(null) : setSelectedUser(null);
+            }}
+            title="Close Chat"
+            className="btn btn-xs btn-ghost"
+          >
+            <X />
+          </button>
+        </div>
       </div>
     </div>
   );

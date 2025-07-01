@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 function GroupPage() {
   const [name, setName] = useState("");
-  const [ispublic, setIsPublic] = useState(false);
+const [isPublic, setIsPublic] = useState(true); // default to public
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,7 +14,7 @@ function GroupPage() {
     try {
       const res = await axiosInstance.post("/create-group", {
         name,
-        ispublic,
+        isPublic,
       });
 
       toast.success("Group created!");
@@ -38,12 +38,13 @@ function GroupPage() {
           required
         />
         <label className="label cursor-pointer justify-start gap-2">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-primary"
-            checked={ispublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-          />
+        <input
+  type="checkbox"
+  className="checkbox checkbox-primary"
+  checked={isPublic}                     // ✅ Controlled by state
+  onChange={(e) => setIsPublic(e.target.checked)}  // ✅ Updates state on toggle
+/>
+
           <span className="label-text">Make this group public</span>
         </label>
         <button type="submit" className="btn btn-primary mt-4">
