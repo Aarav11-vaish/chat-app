@@ -14,7 +14,7 @@ export const chatStore = create((set, get) => ({
     groups: [],
     isGroupLoading: false,
     selectedGroups: null,
-
+    
 joinGroup: async (group) => {
   try {
     const res = await axiosInstance.post(`/join-room/${group.roomid}`);
@@ -30,7 +30,7 @@ joinGroup: async (group) => {
     setSelectedGroups: (selectedGroups) => set({ selectedGroups }),
 
    getGroupMessages: async (groupId) => {
-  set({ ismessagesloading: true, messages: [] }); // clear old messages
+//   set({ ismessagesloading: true, messages: [] }); // clear old messages
   try {
     const res = await axiosInstance.get(`/group-messages/${groupId}`);
     set({ messages: res.data });
@@ -41,7 +41,6 @@ joinGroup: async (group) => {
     set({ ismessagesloading: false });
   }
 },
-
 
     getGroups: async () => {
         set({ isGroupLoading: true });
