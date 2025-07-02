@@ -5,12 +5,12 @@ import ChatHeader from "./ChatHeader";
 import Input_send from "./Input_send";
 import { formdate } from "../utils";
 import CreateGroup from "../Group/CreateGroup";
-import {useNavigate} from "react-router-dom";
 
 function ChatContainer() {
   const {
     messages,
     getMessages,
+    getGroupMessages,
     selectedusers,
     selectedGroups,
     sendMessages,
@@ -25,8 +25,7 @@ function ChatContainer() {
   const handleSendMessage = async () => {
     if (messageInput.trim() === "") return;
 
-    const receiverId =
-      chatMode === "group" ? selectedGroups?._id : selectedusers?._id;
+    const receiverId = chatMode === "group" ? selectedGroups?._id : selectedusers?._id;
     if (!receiverId) return;
 
     await sendMessages(receiverId, messageInput);
@@ -39,7 +38,10 @@ function ChatContainer() {
       subscribetomessages();
       return () => unsubscribetomessages();
     }
-  }, [chatMode, selectedusers, getMessages, subscribetomessages, unsubscribetomessages]);
+    if (chatMode === "group" && selectedGroups?._id) {
+      getGroupMessages(selectedGroups._id);
+    }
+  }, [chatMode, selectedusers, selectedGroups]);
 
   if (chatMode === "group" && !selectedGroups) {
     return <CreateGroup />;
@@ -52,7 +54,6 @@ function ChatContainer() {
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-base-200">
         {messages.map((m) => {
           const isOwnMessage = m.senderID === authUser?._id;
-
           return (
             <div
               key={m._id}

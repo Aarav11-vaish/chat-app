@@ -3,6 +3,7 @@ import { chatStore } from "../chatStore";
 import { authStore } from "../authStore";
 import { Users } from "lucide-react";
 import ChatModeToggle from "./chatModeToggle";
+
 function Sidebar() {
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const {
@@ -14,20 +15,24 @@ function Sidebar() {
     selectedusers,
     selectedGroups,
     setSelectedUser,
-    setSelectedGroups
+    setSelectedGroups,
+    joinGroup,
+    getGroupMessages,
   } = chatStore();
 
-  const { onlineUsers } = authStore();
+  const { onlineUsers, authUser } = authStore();
 
   useEffect(() => {
     if (chatMode === "personal") getUsers();
     else getGroups();
-  }, [chatMode, getUsers, getGroups]);
-
+  }, [chatMode]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
+
+  const isMember = (group) => group.members?.includes(authUser._id);
+  const isOwner = (group) => group.owner === authUser._id;
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -67,7 +72,7 @@ function Sidebar() {
               >
                 <div className="relative mx-auto lg:mx-0">
                   <img
-                    src={"/chat.png"}
+                    src="/chat.png"
                     alt={user.username}
                     className="size-12 object-cover rounded-full"
                   />
@@ -75,7 +80,6 @@ function Sidebar() {
                     <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-850" />
                   )}
                 </div>
-
                 <div className="hidden lg:block text-left min-w-0">
                   <div className="font-medium truncate">{user.username}</div>
                   <div className="text-sm text-zinc-400">
@@ -84,7 +88,6 @@ function Sidebar() {
                 </div>
               </button>
             ))}
-
             {filteredUsers.length === 0 && (
               <div className="text-center text-zinc-500 py-4">No online users</div>
             )}
@@ -93,21 +96,47 @@ function Sidebar() {
       ) : (
         <>
           <div className="p-5">
-            <h2 className="text-lg font-semibold">Your Groups</h2>
+            <h2 className="text-lg font-semibold">All Groups</h2>
           </div>
           <div className="overflow-y-auto w-full py-3">
-            {groups.map((grp) => (
-              <button
-                key={grp._id}
-                onClick={() => setSelectedGroups(grp)}
-                className={`w-full p-3 text-left hover:bg-base-300 transition-colors ${
-                  selectedGroups?._id === grp._id ? "bg-base-300 ring-1 ring-base-300" : ""
-                }`}
-              >
-                <div className="font-medium">{grp.name}</div>
-                <div className="text-sm text-zinc-400">Room ID: {grp.roomid}</div>
-              </button>
-            ))}
+            {groups.map((grp) => {
+              const member = isMember(grp);
+              const owner = isOwner(grp);
+              return (
+                <div
+                  key={grp._id}
+                  className={`p-3 hover:bg-base-300 transition-colors ${
+                    selectedGroups?._id === grp._id ? "bg-base-300 ring-1 ring-base-300" : ""
+                  }`}
+                >
+                  <div
+                    onClick={() => {
+                      setSelectedGroups(grp);
+                      getGroupMessages(grp._id);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <div className="font-medium">{grp.name}</div>
+                    <div className="text-sm text-zinc-400">Room ID: {grp.roomid}</div>
+                  </div>
+                  {!owner && !member && (
+                    <button
+                      className={`mt-2 btn btn-xs ${
+                        grp.ispublic ? "btn-primary" : "btn-outline"
+                      }`}
+                      onClick={() => joinGroup(grp)}
+                    >
+                      {grp.ispublic ? "Join" : "Request"}
+                    </button>
+                  )}
+                  {member && (
+                    <p className="text-xs mt-1 text-green-600">
+                      ✔ Member{grp.ispublic ? "" : " (private)"}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
             {groups.length === 0 && (
               <div className="text-center text-zinc-500 py-4">No groups found</div>
             )}
@@ -117,4 +146,5 @@ function Sidebar() {
     </aside>
   );
 }
+
 export default Sidebar;

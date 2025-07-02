@@ -12,6 +12,7 @@ import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js';
 import { use } from 'react';
 import { stat } from 'fs';
+import { inflateRawSync } from 'zlib';
 // import Group from './group.js'; // Importing the Group model
 //  app = express();
 app.use(cookieParser());
@@ -123,11 +124,18 @@ const invitationSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+const groupMessageSchema = new mongoose.Schema({
+  senderID: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  groupID: { type: mongoose.Schema.Types.ObjectId, ref: "Group", required: true },
+  text: String,
+  image: String,
+}, { timestamps: true });
 
 const messageModel = mongoose.model("Message", messagingSchema);
 const User = mongoose.model("User", userSchema);
 const Group = mongoose.model("Group", groupSchema);
 const Invitation = mongoose.model("Invitation", invitationSchema);
+const GroupMessage = mongoose.model("GroupMessage", groupMessageSchema);
 const roomID_generator = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const protectRoute = async (req, res, next) => {
@@ -177,7 +185,7 @@ app.post("/create-group", protectRoute, async (req, res) => {
     res.status(201).json(new_group);
 })
 
-app.post("/join-root/:roomid", protectRoute, async (req, res) => {
+app.post("/join-room/:roomid", protectRoute, async (req, res) => {
     const { roomid } = req.params;
     const group = await Group.findOne({ roomid });
     if (!group) {
@@ -248,12 +256,62 @@ app.post("/group/:roomid/invite-actions", protectRoute, async (req, res) => {
     await invitation.save();
 
     if (action === "accept") {
-        groupData.members.push(req.userId);
+        groupData.members.push(userId);
+        console.log("User accepted the invitation:", userId);
+        
         await groupData.save();
     }
 
     res.status(200).json({ message: `Invitation ${action}ed`, group: groupData });
 })
+
+app.get("/all-groups", protectRoute, async (req , res)=>{
+    try{
+  const groups = await Group.find().select("-members").populate("owner", "username");
+    res.status(200).json(groups);
+
+    }
+    catch(e){
+        console.log("Error in fetching all groups:", e);
+        res.status(500).json({error: "Internal server error" });
+
+    }
+})
+
+app.get("/my-groups",  protectRoute , async (req, res)=>{
+    try{
+         const groups =await Group.find({ members: req.user._id });
+         res.status(200).json(groups);
+
+    }
+    catch(e){
+res.status(500).json({ error: "Internal server error" });
+        console.error("Error in fetching groups:", e);
+    }
+})
+
+app.post("/group-messages/:groupid", protectRoute, async (req, res) => {
+  const { text, image } = req.body;
+  const senderID = req.user._id;
+  const groupID = req.params.groupid;
+
+  const group = await Group.findById(groupID);
+  if (!group || !group.members.includes(senderID)) {
+    return res.status(403).json({ error: "You are not a member of this group" });
+  }
+
+  const newMessage = new GroupMessage({ senderID, groupID, text, image });
+  await newMessage.save();
+
+  res.status(201).json(newMessage);
+});
+app.get("/group-messages/:groupid", protectRoute, async (req, res) => {
+  const groupID = req.params.groupid;
+
+  const messages = await GroupMessage.find({ groupID }).sort({ createdAt: 1 });
+  res.status(200).json(messages);
+});
+
 
 app.get('/verify-email/:token', async (req, res) => {
     const { token } = req.params;
@@ -323,18 +381,6 @@ app.post('/login', async (req, res) => {
     }
 })
 
-
-app.get("/my-groups",  protectRoute , async (req, res)=>{
-    try{
-         const groups =await Group.find({ members: req.user._id });
-         res.status(200).json(groups);
-
-    }
-    catch(e){
-res.status(500).json({ error: "Internal server error" });
-        console.error("Error in fetching groups:", e);
-    }
-})
 
 const generateToken = (userid, res) => {
     const token = jwt.sign({ userid }, process.env.JWT_SECRET, {
