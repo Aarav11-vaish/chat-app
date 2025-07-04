@@ -119,16 +119,7 @@ function Sidebar() {
                     <div className="font-medium">{grp.name}</div>
                     <div className="text-sm text-zinc-400">Room ID: {grp.roomid}</div>
                   </div>
-                  {!owner && !member && (
-                    <button
-                      className={`mt-2 btn btn-xs ${
-                        grp.ispublic ? "btn-primary" : "btn-outline"
-                      }`}
-                      onClick={() => joinGroup(grp)}
-                    >
-                      {grp.ispublic ? "Join" : "Request"}
-                    </button>
-                  )}
+                 
                   {member && (
                     <p className="text-xs mt-1 text-green-600">
                       ✔ Member{grp.ispublic ? "" : " (private)"}
