@@ -13,7 +13,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import Profile from './components/Profile';
 import Email_verification from './components/email_verification';
 import GroupPage from './Group/GroupPage';
-
+// import Whiteboard from './whiteBoard/Board';
+import Board from './whiteBoard/Board';
 function App() {
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
@@ -47,6 +48,7 @@ function App() {
           <Route path="/profile" element ={!authUser? <Navigate to="/login"/> : <Profile/>} />
           <Route path="/verify-email/:token" element={<Email_verification />} />
           <Route path="/group-page" element={ <GroupPage/> }/>
+          <Route path ="/whiteboard" element={<Board/>}/>
         </Routes>
      <Toaster />
      </>
