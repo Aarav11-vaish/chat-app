@@ -3,7 +3,9 @@ import { authStore } from "../authStore";
 import { chatStore } from "../chatStore";
 import { useNavigate } from "react-router-dom";
 
+
 const ChatHeader = () => {
+  const navigate = useNavigate();
   const {
     selectedusers,
     selectedGroups,
@@ -12,8 +14,13 @@ const ChatHeader = () => {
     chatMode,
   } = chatStore();
 
+const handlewhiteboardnavigation=()=>{
+  navigate("/whiteboard");
+
+}
+
   const { onlineUsers } = authStore();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const isGroup = chatMode === "group";
   const chatTarget = isGroup ? selectedGroups : selectedusers;
@@ -40,6 +47,17 @@ const ChatHeader = () => {
               </p>
             )}
           </div>
+          <div>
+<a
+  href="/WhiteBoard"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="px-4 py-2 bg-blue-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
+>
+  Whiteboard
+</a>
+
+         </div>
         </div>
 
         {/* Right: Create Group button + Close */}
