@@ -2,7 +2,7 @@ import { X, Plus } from "lucide-react";
 import { authStore } from "../authStore";
 import { chatStore } from "../chatStore";
 import { useNavigate } from "react-router-dom";
-
+import { v4 as uuidv4 } from "uuid";
 
 const ChatHeader = () => {
   const navigate = useNavigate();
@@ -12,12 +12,23 @@ const ChatHeader = () => {
     setSelectedUser,
     setSelectedGroups,
     chatMode,
+    sendMessages,
   } = chatStore();
 
-const handlewhiteboardnavigation=()=>{
-  navigate("/whiteboard");
+const openWhiteboard = () => {
+  const roomId = uuidv4();
+  const whiteboardLink = `${window.location.origin}/whiteboard/${roomId}`;
 
-}
+  // Send this link as a normal message
+  if (chatMode === "personal" && selectedusers) {
+sendMessages(selectedusers._id, `Join whiteboard: ${whiteboardLink}`);
+  }
+
+  // Open the whiteboard in a new tab
+  window.open(whiteboardLink, '_blank');
+};
+
+
 
   const { onlineUsers } = authStore();
   // const navigate = useNavigate();
@@ -48,14 +59,12 @@ const handlewhiteboardnavigation=()=>{
             )}
           </div>
           <div>
-<a
-  href="/WhiteBoard"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="px-4 py-2 bg-blue-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
->
-  Whiteboard
-</a>
+   <button
+      onClick={openWhiteboard}
+      className="px-4 py-2 bg-blue-400 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
+    >
+      Whiteboard
+    </button>
 
          </div>
         </div>

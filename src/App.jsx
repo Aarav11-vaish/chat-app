@@ -48,7 +48,7 @@ function App() {
           <Route path="/profile" element ={!authUser? <Navigate to="/login"/> : <Profile/>} />
           <Route path="/verify-email/:token" element={<Email_verification />} />
           <Route path="/group-page" element={ <GroupPage/> }/>
-          <Route path ="/whiteboard" element={<Board/>}/>
+  <Route path="/whiteboard/:roomId" element={<Board />} />
         </Routes>
      <Toaster />
      </>
