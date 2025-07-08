@@ -21,7 +21,7 @@ const openWhiteboard = () => {
 
   // Send this link as a normal message
   if (chatMode === "personal" && selectedusers) {
-sendMessages(selectedusers._id, `Join whiteboard: ${whiteboardLink}`);
+sendMessages(selectedusers._id, `Join whiteboard:  ${whiteboardLink}`);
   }
 
   // Open the whiteboard in a new tab
