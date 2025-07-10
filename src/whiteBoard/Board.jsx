@@ -9,20 +9,17 @@ const Board = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState("pen");
   const [color, setColor] = useState("#FFFFFF");
+  const [thickness, setThickness] = useState(2);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [elements, setElements] = useState([]);
   const [currentStrokeId, setCurrentStrokeId] = useState(null);
+  const [textInput, setTextInput] = useState({ show: false, x: 0, y: 0, text: "" });
 
-  // Fixed useEffect for socket handling
   useEffect(() => {
     socket.emit("join-room", roomId);
-
-    socket.off("drawing"); // ensure no duplicate listeners
-    
-    // ✅ FIXED: Remove destructuring, data comes directly
+    socket.off("drawing");
     socket.on("drawing", (data) => {
       if (!data?.strokeId) return;
-
       setElements((prev) => {
         const idx = prev.findIndex((el) => el.strokeId === data.strokeId);
         if (idx !== -1) {
@@ -33,18 +30,11 @@ const Board = () => {
         return [...prev, data];
       });
     });
-
-    return () => {
-      socket.off("drawing");
-    };
+    return () => socket.off("drawing");
   }, [roomId]);
 
-  // Draw on elements change
-  useEffect(() => {
-    redraw();
-  }, [elements]);
+  useEffect(() => { redraw(); }, [elements]);
 
-  // Resize
   useEffect(() => {
     const canvas = canvasRef.current;
     const resizeCanvas = () => {
@@ -58,20 +48,27 @@ const Board = () => {
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
-  const getMousePos = (e) => ({
-    x: e.nativeEvent.offsetX,
-    y: e.nativeEvent.offsetY,
-  });
+  const getMousePos = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
 
   const startDrawing = (e) => {
     const pos = getMousePos(e);
     setIsDrawing(true);
     setStartPos(pos);
-
+    if (tool === 'text') {
+      setTextInput({ show: true, x: pos.x, y: pos.y, text: "" });
+      return;
+    }
     if (tool === 'pen') {
       const strokeId = uuidv4();
       setCurrentStrokeId(strokeId);
-      const newElement = { type: 'pen', strokeId, points: [pos], color };
+      const newElement = { type: 'pen', strokeId, points: [pos], color, thickness };
       setElements((prev) => [...prev, newElement]);
       socket.emit("drawing", { roomId, data: newElement });
     }
@@ -79,15 +76,11 @@ const Board = () => {
 
   const draw = (e) => {
     if (!isDrawing) return;
-
     const pos = getMousePos(e);
-
     if (tool === "pen") {
       setElements((prev) => {
         const newElements = [...prev];
-        const index = newElements.findIndex(
-          (el) => el.strokeId === currentStrokeId
-        );
+        const index = newElements.findIndex((el) => el.strokeId === currentStrokeId);
         if (index !== -1) {
           newElements[index].points.push(pos);
           socket.emit("drawing", { roomId, data: newElements[index] });
@@ -99,11 +92,9 @@ const Board = () => {
 
   const stopDrawing = (e) => {
     if (!isDrawing) return;
-
     const pos = getMousePos(e);
     setIsDrawing(false);
-
-    if (tool !== "pen") {
+    if (tool !== "pen" && tool !== "text") {
       const shape = {
         type: tool,
         startX: startPos.x,
@@ -112,11 +103,11 @@ const Board = () => {
         endY: pos.y,
         strokeId: uuidv4(),
         color,
+        thickness,
       };
       setElements((prev) => [...prev, shape]);
       socket.emit("drawing", { roomId, data: shape });
     }
-
     setCurrentStrokeId(null);
   };
 
@@ -124,14 +115,12 @@ const Board = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.lineWidth = 2;
-
     elements.forEach((el) => {
       ctx.strokeStyle = el.color || "#FFFFFF";
+      ctx.lineWidth = el.thickness || 2;
       ctx.beginPath();
-      if (el.type === "pen" && el.points && el.points.length > 1) {
+      if (el.type === "pen" && el.points?.length > 1) {
         ctx.moveTo(el.points[0].x, el.points[0].y);
         el.points.forEach((p) => ctx.lineTo(p.x, p.y));
       } else if (el.type === "line") {
@@ -142,76 +131,100 @@ const Board = () => {
       } else if (el.type === "circle") {
         const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
         ctx.arc(el.startX, el.startY, radius, 0, 2 * Math.PI);
+      } else if (el.type === "text") {
+        ctx.fillStyle = el.color || "#FFFFFF";
+        ctx.font = `${el.fontSize || 16}px Arial`;
+        ctx.fillText(el.text, el.x, el.y);
       }
-      ctx.stroke();
+      if (el.type !== "text") ctx.stroke();
     });
   };
 
-  const tools = [
-    { name: "pen", icon: "✏️", label: "Pen" },
-    { name: "line", icon: "📏", label: "Line" },
-    { name: "rectangle", icon: "⬜", label: "Rectangle" },
-    { name: "circle", icon: "⭕", label: "Circle" },
-  ];
+  const handleTextSubmit = (e) => {
+    if (e.key === 'Enter' && textInput.text.trim()) {
+      const textElement = {
+        type: 'text',
+        x: textInput.x,
+        y: textInput.y,
+        text: textInput.text,
+        color,
+        fontSize: 16,
+        strokeId: uuidv4(),
+      };
+      setElements((prev) => [...prev, textElement]);
+      socket.emit("drawing", { roomId, data: textElement });
+      setTextInput({ show: false, x: 0, y: 0, text: "" });
+    } else if (e.key === 'Escape') {
+      setTextInput({ show: false, x: 0, y: 0, text: "" });
+    }
+  };
 
-  const colors = [
-    "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", 
-    "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500",
-    "#800080", "#FFC0CB", "#A52A2A", "#808080"
-  ];
+  const handleTextBlur = () => {
+    if (textInput.text.trim()) {
+      const textElement = {
+        type: 'text',
+        x: textInput.x,
+        y: textInput.y,
+        text: textInput.text,
+        color,
+        fontSize: 16,
+        strokeId: uuidv4(),
+      };
+      setElements((prev) => [...prev, textElement]);
+      socket.emit("drawing", { roomId, data: textElement });
+    }
+    setTextInput({ show: false, x: 0, y: 0, text: "" });
+  };
 
   return (
     <div className="h-screen bg-blue-1000 flex">
-      {/* Sidebar */}
-      <div className="w-16 bg-gray-800 flex flex-col items-center py-4 space-y-4">
-        {/* Tools */}
-        <div className="flex flex-col space-y-2">
-          {tools.map((t) => (
-            <button
-              key={t.name}
-              onClick={() => setTool(t.name)}
-              className={`w-12 h-12 rounded-lg flex items-center justify-center text-xl transition-colors ${
-                tool === t.name 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-              title={t.label}
-            >
-              {t.icon}
-            </button>
-          ))}
-        </div>
-
-        {/* Divider */}
-        <div className="w-8 h-px bg-gray-600"></div>
-
-        {/* Colors */}
+      <div className="w-64 bg-gray-900 p-4 text-white space-y-4">
+        <h3 className="text-lg font-bold">Tools</h3>
         <div className="grid grid-cols-2 gap-1">
-          {colors.map((c) => (
+          {["pen", "text", "line", "rectangle", "circle"].map((t) => (
             <button
-              key={c}
-              onClick={() => setColor(c)}
-              className={`w-5 h-5 rounded border-2 transition-all ${
-                color === c 
-                  ? 'border-white scale-110' 
-                  : 'border-gray-600 hover:border-gray-400'
-              }`}
-              style={{ backgroundColor: c }}
-              title={c}
-            />
+              key={t}
+              onClick={() => setTool(t)}
+              className={`rounded px-4 py-2 text-sm ${tool === t ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"}`}
+            >{t}</button>
           ))}
         </div>
+        <h3 className="text-sm mt-4">Colors</h3>
+        <div className="grid grid-cols-6 gap-1">
+          {["#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"].map((c) => (
+            <button key={c} onClick={() => setColor(c)} className="w-5 h-5 border border-white" style={{ backgroundColor: c }}></button>
+          ))}
+        </div>
+        <h3 className="text-sm mt-4">Thickness</h3>
+        <input type="range" min={1} max={10} value={thickness} onChange={(e) => setThickness(parseInt(e.target.value))} />
       </div>
-
-      {/* Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="flex-1 cursor-crosshair"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      />
+      <div className="flex-1 relative">
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full cursor-crosshair"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+        />
+        {textInput.show && (
+          <input
+            autoFocus
+            className="absolute bg-white text-black p-2 text-sm rounded border-2 border-blue-500 shadow-lg"
+            style={{
+              left: `${textInput.x + 268}px`, // Offset for sidebar width
+              top: `${textInput.y}px`,
+              zIndex: 1000,
+              minWidth: '150px',
+              fontSize: '14px',
+            }}
+            value={textInput.text}
+            onChange={(e) => setTextInput((prev) => ({ ...prev, text: e.target.value }))}
+            onKeyDown={handleTextSubmit}
+            onBlur={handleTextBlur}
+          />
+        )}
+      </div>
     </div>
   );
 };
