@@ -25,6 +25,27 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("drawing", data); // emit to everyone in room (including sender)
   });
 
+  socket.on("join-video-room", (roomId)=>{
+    socket.join(roomId);
+    const users =Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+    const otherUsers = users.filter((id) => id !== socket.id); // exclude the current user
+    if(otherUsers) {
+      socket.emit("user-joined", otherUsers);
+    }
+
+    socket.on("offer", ({ roomId, offer }) => {
+    socket.to(roomId).emit("offer", offer);
+  });
+
+  socket.on("answer", ({ roomId, answer }) => {
+    socket.to(roomId).emit("answer", answer);
+  });
+
+  socket.on("ice-candidate", ({ roomId, candidate }) => {
+    socket.to(roomId).emit("ice-candidate", candidate);
+  });
+  });
+
   socket.on("disconnect", () => {
     console.log("🔴 A user disconnected:", socket.id);
   });

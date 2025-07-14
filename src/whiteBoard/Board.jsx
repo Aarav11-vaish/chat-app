@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import socket from "../socketboard";
+import VideoCall from "../video_chat/VideCall";
 
 const Board = () => {
   const { roomId } = useParams();
@@ -176,57 +177,84 @@ const Board = () => {
     setTextInput({ show: false, x: 0, y: 0, text: "" });
   };
 
-  return (
-    <div className="h-screen bg-blue-1000 flex">
-      <div className="w-64 bg-gray-900 p-4 text-white space-y-4">
-        <h3 className="text-lg font-bold">Tools</h3>
-        <div className="grid grid-cols-2 gap-1">
-          {["pen", "text", "line", "rectangle", "circle"].map((t) => (
-            <button
-              key={t}
-              onClick={() => setTool(t)}
-              className={`rounded px-4 py-2 text-sm ${tool === t ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"}`}
-            >{t}</button>
-          ))}
-        </div>
-        <h3 className="text-sm mt-4">Colors</h3>
-        <div className="grid grid-cols-6 gap-1">
-          {["#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"].map((c) => (
-            <button key={c} onClick={() => setColor(c)} className="w-5 h-5 border border-white" style={{ backgroundColor: c }}></button>
-          ))}
-        </div>
-        <h3 className="text-sm mt-4">Thickness</h3>
-        <input type="range" min={1} max={10} value={thickness} onChange={(e) => setThickness(parseInt(e.target.value))} />
-      </div>
-      <div className="flex-1 relative">
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full cursor-crosshair"
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-        />
-        {textInput.show && (
-          <input
-            autoFocus
-            className="absolute bg-white text-black p-2 text-sm rounded border-2 border-blue-500 shadow-lg"
-            style={{
-              left: `${textInput.x + 268}px`, // Offset for sidebar width
-              top: `${textInput.y}px`,
-              zIndex: 1000,
-              minWidth: '150px',
-              fontSize: '14px',
-            }}
-            value={textInput.text}
-            onChange={(e) => setTextInput((prev) => ({ ...prev, text: e.target.value }))}
-            onKeyDown={handleTextSubmit}
-            onBlur={handleTextBlur}
-          />
-        )}  
-      </div>
+return (
+  <div className="relative h-screen bg-blue-1000 flex">
+    {/* Video Call Overlay */}
+    <div className="absolute top-4 right-4 z-50">
+      <VideoCall />
     </div>
-  );
+
+    {/* Sidebar Tools */}
+    <div className="w-64 bg-gray-900 p-4 text-white space-y-4">
+      <h3 className="text-lg font-bold">Tools</h3>
+      <div className="grid grid-cols-2 gap-1">
+        {["pen", "text", "line", "rectangle", "circle"].map((t) => (
+          <button
+            key={t}
+            onClick={() => setTool(t)}
+            className={`rounded px-4 py-2 text-sm ${
+              tool === t ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
+      <h3 className="text-sm mt-4">Colors</h3>
+      <div className="grid grid-cols-6 gap-1">
+        {["#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"].map((c) => (
+          <button
+            key={c}
+            onClick={() => setColor(c)}
+            className="w-5 h-5 border border-white"
+            style={{ backgroundColor: c }}
+          ></button>
+        ))}
+      </div>
+
+      <h3 className="text-sm mt-4">Thickness</h3>
+      <input
+        type="range"
+        min={1}
+        max={10}
+        value={thickness}
+        onChange={(e) => setThickness(parseInt(e.target.value))}
+      />
+    </div>
+
+    {/* Whiteboard Canvas */}
+    <div className="flex-1 relative">
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full cursor-crosshair"
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+      />
+
+      {textInput.show && (
+        <input
+          autoFocus
+          className="absolute bg-white text-black p-2 text-sm rounded border-2 border-blue-500 shadow-lg"
+          style={{
+            left: `${textInput.x + 268}px`, // Offset for sidebar width
+            top: `${textInput.y}px`,
+            zIndex: 1000,
+            minWidth: "150px",
+            fontSize: "14px",
+          }}
+          value={textInput.text}
+          onChange={(e) => setTextInput((prev) => ({ ...prev, text: e.target.value }))}
+          onKeyDown={handleTextSubmit}
+          onBlur={handleTextBlur}
+        />
+      )}
+    </div>
+  </div>
+);
 };
+
 
 export default Board;

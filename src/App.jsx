@@ -15,6 +15,7 @@ import Email_verification from './components/email_verification';
 import GroupPage from './Group/GroupPage';
 // import Whiteboard from './whiteBoard/Board';
 import Board from './whiteBoard/Board';
+import VideoCall from './video_chat/VideCall';
 function App() {
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
@@ -49,6 +50,8 @@ function App() {
           <Route path="/verify-email/:token" element={<Email_verification />} />
           <Route path="/group-page" element={ <GroupPage/> }/>
   <Route path="/whiteboard/:roomId" element={<Board />} />
+  <Route path="/whiteboard/:roomId/video" element={<VideoCall />} />
+
         </Routes>
      <Toaster />
      </>
