@@ -223,7 +223,7 @@ const Board = () => {
             onKeyDown={handleTextSubmit}
             onBlur={handleTextBlur}
           />
-        )}
+        )}  
       </div>
     </div>
   );
