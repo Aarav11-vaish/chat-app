@@ -28,6 +28,29 @@ export const authStore = create((set, get) => ({
             set({ ischeckAuthenticated: false });
         }
     },
+
+    // search users
+searchUser: async (roomID) => {
+    if (!/^\d{6}$/.test(roomID)) {
+        toast.error("Please enter a valid 6-digit Room ID");
+        return null;
+    }
+
+    try {
+        const res = await axiosInstance.get(`/search-room/${roomID}`);
+        return res.data; // return room object if found
+    } catch (e) {
+        console.error(e, "Error in searchRoomByID");
+        toast.error(
+            e.response?.status === 404
+                ? "Room not found"
+                : "Error while searching room"
+        );
+        return null;
+    }
+},
+
+
     signAuth:async (data)=>{
         set({ isSignedUp: true });
         try{

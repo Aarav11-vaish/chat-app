@@ -32,6 +32,7 @@
     "socket": "^1.0.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "styled-components": "^6.1.19",
     "tailwindcss": "^4.1.8",
     "uuid": "^11.1.0",
     "websocket": "^1.0.35",

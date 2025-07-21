@@ -3,9 +3,12 @@ import { chatStore } from "../chatStore";
 import { authStore } from "../authStore";
 import { Users } from "lucide-react";
 import ChatModeToggle from "./chatModeToggle";
+import SearchBar from "./SearchBar"; // <-- your search component
+import toast from "react-hot-toast";
 
 function Sidebar() {
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const [searchResult, setSearchResult] = useState(null); // <- new state
   const {
     getUsers,
     getGroups,
@@ -16,8 +19,8 @@ function Sidebar() {
     selectedGroups,
     setSelectedUser,
     setSelectedGroups,
-    joinGroup,
     getGroupMessages,
+    searchUser,
   } = chatStore();
 
   const { onlineUsers, authUser } = authStore();
@@ -30,6 +33,15 @@ function Sidebar() {
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
+
+  const handleSearch = async (query) => {
+    if (!/^\d{6}$/.test(query)) {
+      toast.error("Please enter a valid 6-digit ID");
+      return;
+    }
+    const user = await searchUser(query);
+    setSearchResult(user); // Will be null if not found
+  };
 
   const isMember = (group) => group.members?.includes(authUser._id);
   const isOwner = (group) => group.owner === authUser._id;
@@ -45,6 +57,12 @@ function Sidebar() {
               <Users className="size-6" />
               <span className="font-medium hidden lg:block">Contacts</span>
             </div>
+
+            {/* 🔍 Search Bar Component */}
+            <div className="mt-4">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+
             <div className="mt-3 hidden lg:flex items-center gap-2">
               <label className="cursor-pointer flex items-center gap-2">
                 <input
@@ -62,33 +80,63 @@ function Sidebar() {
           </div>
 
           <div className="overflow-y-auto w-full py-3">
-            {filteredUsers.map((user) => (
+            {/* 📍 If searchResult exists, show only that user */}
+            {searchResult ? (
               <button
-                key={user._id}
-                onClick={() => setSelectedUser(user)}
+                key={searchResult._id}
+                onClick={() => setSelectedUser(searchResult)}
                 className={`w-full p-3 flex items-center gap-3 hover:bg-base-300 transition-colors ${
-                  selectedusers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""
+                  selectedusers?._id === searchResult._id
+                    ? "bg-base-300 ring-1 ring-base-300"
+                    : ""
                 }`}
               >
                 <div className="relative mx-auto lg:mx-0">
                   <img
                     src="/chat.png"
-                    alt={user.username}
+                    alt={searchResult.username}
                     className="size-12 object-cover rounded-full"
                   />
-                  {onlineUsers.includes(user._id) && (
+                  {onlineUsers.includes(searchResult._id) && (
                     <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-850" />
                   )}
                 </div>
                 <div className="hidden lg:block text-left min-w-0">
-                  <div className="font-medium truncate">{user.username}</div>
+                  <div className="font-medium truncate">{searchResult.username}</div>
                   <div className="text-sm text-zinc-400">
-                    {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                    {onlineUsers.includes(searchResult._id) ? "Online" : "Offline"}
                   </div>
                 </div>
               </button>
-            ))}
-            {filteredUsers.length === 0 && (
+            ) : (
+              filteredUsers.map((user) => (
+                <button
+                  key={user._id}
+                  onClick={() => setSelectedUser(user)}
+                  className={`w-full p-3 flex items-center gap-3 hover:bg-base-300 transition-colors ${
+                    selectedusers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""
+                  }`}
+                >
+                  <div className="relative mx-auto lg:mx-0">
+                    <img
+                      src="/chat.png"
+                      alt={user.username}
+                      className="size-12 object-cover rounded-full"
+                    />
+                    {onlineUsers.includes(user._id) && (
+                      <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-850" />
+                    )}
+                  </div>
+                  <div className="hidden lg:block text-left min-w-0">
+                    <div className="font-medium truncate">{user.username}</div>
+                    <div className="text-sm text-zinc-400">
+                      {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+            {filteredUsers.length === 0 && !searchResult && (
               <div className="text-center text-zinc-500 py-4">No online users</div>
             )}
           </div>
@@ -119,7 +167,7 @@ function Sidebar() {
                     <div className="font-medium">{grp.name}</div>
                     <div className="text-sm text-zinc-400">Room ID: {grp.roomid}</div>
                   </div>
-                 
+
                   {member && (
                     <p className="text-xs mt-1 text-green-600">
                       ✔ Member{grp.ispublic ? "" : " (private)"}
