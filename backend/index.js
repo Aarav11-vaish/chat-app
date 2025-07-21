@@ -45,6 +45,13 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+    id :{
+
+        type: String, 
+        required:true, 
+        unique: true,
+    },
+
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String },
 
@@ -63,8 +70,14 @@ const messagingSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-
     },
+//     roomid:{
+// type : String,
+
+//         required: true,
+//         unique: true
+
+//     },
     text: {
         type: String,
     },
@@ -399,6 +412,21 @@ const generateToken = (userid, res) => {
 // The generateToken function creates a JWT token for the user and sets it as a cookie in the response.
 // This token can be used for authentication in subsequent requests, allowing the server to verify the user's identity without requiring them to log in again.
 
+app.get('/search-users/:id', async (req, res) => {
+    try {
+        const user = await User.findOne({ id: req.params.id });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json(user);
+    } catch (e) {
+        console.error("Error in searching user:", e);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}); 
+
 app.put('/profileupdate', protectRoute, async (req, res) => {
     try {
         const userId = req.user._id;
@@ -459,12 +487,15 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
+const userId=roomID_generator(); // Generate a unique user ID
+console.log("Generated user ID:", userId);
 
 
         const newUser = new User({
             email,
             username,
             password: hashedPassword,
+            id: userId,
             verificationToken
         });
         // res.status(200).json({message: "Signup successful"});
