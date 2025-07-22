@@ -2,22 +2,17 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { authStore } from "../authStore";
 
-function SearchBar() {
+function SearchBar({ onSearch }) {
   const [roomID, setRoomID] = useState("");
-const searchRoomByID = authStore((state) => state.searchUser);
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!/^\d{6}$/.test(roomID)) {
       alert("Please enter a valid 6-digit Room ID");
       return;
     }
 
-    const result = await searchRoomByID(roomID);
-    if (result) {
-      console.log("Room found:", result);
-      // Example: navigate to room pagew
-      // navigate(`/room/${roomID}`);
-    }
+    // Call parent handler instead of doing search here
+    onSearch(roomID);
   };
 
   return (
@@ -32,11 +27,12 @@ const searchRoomByID = authStore((state) => state.searchUser);
           onChange={(e) => setRoomID(e.target.value)}
         />
         <button className="searchButton" onClick={handleSearch}>
+
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width={29}
-            height={29}
-            viewBox="0 0 29 29"
+            width={20}
+            height={20}
+            viewBox="3 0 30 30"
             fill="none"
           >
             <g clipPath="url(#clip0_2_17)">
@@ -98,7 +94,9 @@ const searchRoomByID = authStore((state) => state.searchUser);
             </defs>
           </svg>
         </button>
+
       </div>
+       
     </StyledWrapper>
   );
 }

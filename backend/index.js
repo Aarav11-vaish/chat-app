@@ -412,13 +412,14 @@ const generateToken = (userid, res) => {
 // The generateToken function creates a JWT token for the user and sets it as a cookie in the response.
 // This token can be used for authentication in subsequent requests, allowing the server to verify the user's identity without requiring them to log in again.
 
-app.get('/search-users/:id', async (req, res) => {
+app.get('/search-room/:id', async (req, res) => {
     try {
         const user = await User.findOne({ id: req.params.id });
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
+console.log("User found:", user);
 
         res.status(200).json(user);
     } catch (e) {

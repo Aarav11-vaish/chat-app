@@ -28,7 +28,7 @@ export const authStore = create((set, get) => ({
             set({ ischeckAuthenticated: false });
         }
     },
-
+    
     // search users
 searchUser: async (roomID) => {
     if (!/^\d{6}$/.test(roomID)) {

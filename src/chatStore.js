@@ -42,6 +42,8 @@ joinGroup: async (group) => {
   }
 },
 
+
+
     getGroups: async () => {
         set({ isGroupLoading: true });
         try {

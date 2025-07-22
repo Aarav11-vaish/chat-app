@@ -3,12 +3,12 @@ import { chatStore } from "../chatStore";
 import { authStore } from "../authStore";
 import { Users } from "lucide-react";
 import ChatModeToggle from "./chatModeToggle";
-import SearchBar from "./SearchBar"; // <-- your search component
+import SearchBar from "./SearchBar";
 import toast from "react-hot-toast";
 
 function Sidebar() {
-  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
-  const [searchResult, setSearchResult] = useState(null); // <- new state
+  const [searchResult, setSearchResult] = useState(null);
+
   const {
     getUsers,
     getGroups,
@@ -20,9 +20,9 @@ function Sidebar() {
     setSelectedUser,
     setSelectedGroups,
     getGroupMessages,
-    searchUser,
+    // searchUser,
   } = chatStore();
-
+const searchUser = authStore((state) => state.searchUser);
   const { onlineUsers, authUser } = authStore();
 
   useEffect(() => {
@@ -30,9 +30,9 @@ function Sidebar() {
     else getGroups();
   }, [chatMode]);
 
-  const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+  const filteredUsers = users.filter((user) =>
+    onlineUsers.includes(user._id)
+  );
 
   const handleSearch = async (query) => {
     if (!/^\d{6}$/.test(query)) {
@@ -40,7 +40,7 @@ function Sidebar() {
       return;
     }
     const user = await searchUser(query);
-    setSearchResult(user); // Will be null if not found
+    setSearchResult(user || null);
   };
 
   const isMember = (group) => group.members?.includes(authUser._id);
@@ -58,33 +58,26 @@ function Sidebar() {
               <span className="font-medium hidden lg:block">Contacts</span>
             </div>
 
-            {/* 🔍 Search Bar Component */}
             <div className="mt-4">
               <SearchBar onSearch={handleSearch} />
             </div>
 
             <div className="mt-3 hidden lg:flex items-center gap-2">
-              <label className="cursor-pointer flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={showOnlineOnly}
-                  onChange={(e) => setShowOnlineOnly(e.target.checked)}
-                  className="checkbox checkbox-sm"
-                />
-                <span className="text-sm">Show online only</span>
-              </label>
+              <span className="text-sm">Online users:</span>
               <span className="text-xs text-zinc-500">
-                ({onlineUsers.length - 1} online)
+                ({onlineUsers.length - 1})
               </span>
             </div>
           </div>
 
           <div className="overflow-y-auto w-full py-3">
-            {/* 📍 If searchResult exists, show only that user */}
-            {searchResult ? (
+            {searchResult && (
               <button
                 key={searchResult._id}
-                onClick={() => setSelectedUser(searchResult)}
+                onClick={() => {setSelectedUser(searchResult);
+                  setSearchResult(null);
+                }
+                }
                 className={`w-full p-3 flex items-center gap-3 hover:bg-base-300 transition-colors ${
                   selectedusers?._id === searchResult._id
                     ? "bg-base-300 ring-1 ring-base-300"
@@ -102,19 +95,28 @@ function Sidebar() {
                   )}
                 </div>
                 <div className="hidden lg:block text-left min-w-0">
-                  <div className="font-medium truncate">{searchResult.username}</div>
+                  <div className="font-medium truncate">
+                    {searchResult.username}
+                  </div>
                   <div className="text-sm text-zinc-400">
-                    {onlineUsers.includes(searchResult._id) ? "Online" : "Offline"}
+                    {onlineUsers.includes(searchResult._id)
+                      ? "Online"
+                      : "Offline"}
                   </div>
                 </div>
               </button>
-            ) : (
-              filteredUsers.map((user) => (
+            )}
+
+            {filteredUsers
+              .filter((user) => user._id !== searchResult?._id)
+              .map((user) => (
                 <button
                   key={user._id}
                   onClick={() => setSelectedUser(user)}
                   className={`w-full p-3 flex items-center gap-3 hover:bg-base-300 transition-colors ${
-                    selectedusers?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""
+                    selectedusers?._id === user._id
+                      ? "bg-base-300 ring-1 ring-base-300"
+                      : ""
                   }`}
                 >
                   <div className="relative mx-auto lg:mx-0">
@@ -123,21 +125,20 @@ function Sidebar() {
                       alt={user.username}
                       className="size-12 object-cover rounded-full"
                     />
-                    {onlineUsers.includes(user._id) && (
-                      <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-850" />
-                    )}
+                    <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-850" />
                   </div>
                   <div className="hidden lg:block text-left min-w-0">
                     <div className="font-medium truncate">{user.username}</div>
-                    <div className="text-sm text-zinc-400">
-                      {onlineUsers.includes(user._id) ? "Online" : "Offline"}
-                    </div>
+                    <div className="text-sm text-zinc-150">{user.id}</div>
+                    <div className="text-sm text-zinc-400">Online</div>
                   </div>
                 </button>
-              ))
-            )}
+              ))}
+
             {filteredUsers.length === 0 && !searchResult && (
-              <div className="text-center text-zinc-500 py-4">No online users</div>
+              <div className="text-center text-zinc-500 py-4">
+                No online users
+              </div>
             )}
           </div>
         </>
@@ -154,7 +155,9 @@ function Sidebar() {
                 <div
                   key={grp._id}
                   className={`p-3 hover:bg-base-300 transition-colors ${
-                    selectedGroups?._id === grp._id ? "bg-base-300 ring-1 ring-base-300" : ""
+                    selectedGroups?._id === grp._id
+                      ? "bg-base-300 ring-1 ring-base-300"
+                      : ""
                   }`}
                 >
                   <div
@@ -165,7 +168,9 @@ function Sidebar() {
                     className="cursor-pointer"
                   >
                     <div className="font-medium">{grp.name}</div>
-                    <div className="text-sm text-zinc-400">Room ID: {grp.roomid}</div>
+                    <div className="text-sm text-zinc-400">
+                      Room ID: {grp.roomid}
+                    </div>
                   </div>
 
                   {member && (
@@ -177,7 +182,9 @@ function Sidebar() {
               );
             })}
             {groups.length === 0 && (
-              <div className="text-center text-zinc-500 py-4">No groups found</div>
+              <div className="text-center text-zinc-500 py-4">
+                No groups found
+              </div>
             )}
           </div>
         </>
