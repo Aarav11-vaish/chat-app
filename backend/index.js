@@ -597,6 +597,7 @@ app.get('/:id', protectRoute, async (req, res) => {
 
 
     }
+    
     catch (err) {
         console.error(err, "Error in fetching user by ID");
         res.status(500).json({ error: "Internal server error" });
