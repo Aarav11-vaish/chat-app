@@ -23,7 +23,7 @@
     "lucide-react": "^0.513.0",
     "mongoose": "^8.15.1",
     "nodemailer": "^7.0.3",
-    "nodemon": "^3.1.9",
+    "nodemon": "^3.1.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",

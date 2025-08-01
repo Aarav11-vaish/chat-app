@@ -68,7 +68,7 @@ function ChatContainer() {
                 <div
                   className={`p-2 rounded shadow text-sm max-w-md ${
                     isOwnMessage
-                      ? "bg-red-300 text-right rounded-br-none"
+                      ? "bg-sky-600 text-right rounded-br-none"
                       : "bg-white text-left rounded-bl-none text-black"
                   }`}
                 >

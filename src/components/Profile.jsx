@@ -61,6 +61,15 @@ function Profile() {
                   
                   <div className="space-y-6">
                     {/* Email Display */}
+                      <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-50 flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        user ID
+                      </label>
+                      <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700">
+                        {authUser?.id}
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-50 flex items-center gap-2">
                         <Mail className="w-4 h-4" />
