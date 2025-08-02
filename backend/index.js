@@ -21,12 +21,12 @@ app.use(express.json());
 
 //apply cors
 app.use(cors({
-    origin: 'http://localhost:5173', // your Vite frontend
+    origin: process.env.frontend_url, // your Vite frontend
     credentials: true,              // allow cookies, auth headers
 }));
 
 
-mongoose.connect("mongodb://localhost:27017/chat-app");
+mongoose.connect(process.env.MONGO_URI);
 
 
 

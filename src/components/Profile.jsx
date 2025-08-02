@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { authStore } from '../authStore';
 import { toast } from 'react-hot-toast';
-import { User, Mail, Lock, Calendar } from 'lucide-react';
+import { User, Mail, Lock, Calendar, IdCard } from 'lucide-react';
 import Navbar from './Navbar';
 function Profile() {
   const { authUser, isProfileUpdated, profileupdate } = authStore();
@@ -61,9 +61,9 @@ function Profile() {
                   
                   <div className="space-y-6">
                     {/* Email Display */}
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                       <label className="text-sm font-medium text-slate-50 flex items-center gap-2">
-                        <Mail className="w-4 h-4" />
+                        <IdCard className="w-4 h-4" />
                         user ID
                       </label>
                       <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700">
@@ -148,7 +148,7 @@ function Profile() {
                         <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
                         <span className="text-slate-700 font-medium">Member Since</span>
                       </div>
-                      <span className="text-slate-600 font-mono text-sm">
+                      <span className="text-black font-mono text-sm">
                         {authUser.createdAt?.split("T")[0]}
                       </span>
                     </div>
