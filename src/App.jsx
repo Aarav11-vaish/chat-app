@@ -11,7 +11,7 @@ import { Loader, LogIn } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Profile from './components/Profile';
-import Email_verification from './components/email_verification';
+import Email_verification from './components/Email_verification';
 import GroupPage from './Group/GroupPage';
 // import Whiteboard from './whiteBoard/Board';
 import Board from './whiteBoard/Board';
