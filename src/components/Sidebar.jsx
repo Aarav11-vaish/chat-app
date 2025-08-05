@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { chatStore } from "../chatStore";
 import { authStore } from "../authStore";
 import { Users } from "lucide-react";
-import ChatModeToggle from "./chatModeToggle";
+import ChatModeToggle from "./ChatModeToggle";
 import SearchBar from "./SearchBar";
 import toast from "react-hot-toast";
 
