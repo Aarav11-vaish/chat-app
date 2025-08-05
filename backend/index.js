@@ -173,6 +173,10 @@ const protectRoute = async (req, res, next) => {
 // The protectRoute function is a middleware that checks for a valid JWT token in the request cookies.
 // If the token is valid, it retrieves the user from the database and attaches it to the request object.
 
+app.get("/", (req, res) => {
+    res.send("Welcome to the Chat App Backend");
+});
+
 app.post("/create-group", protectRoute, async (req, res) => {
     const { name, ispublic } = req.body;
     let roomid = "";
