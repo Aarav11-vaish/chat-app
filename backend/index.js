@@ -7,14 +7,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { app, server, receiverSocketMap, io } from './socket.js'; // Importing the socket.io server instance
-import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js';
-import { use } from 'react';
-import { stat } from 'fs';
-import { inflateRawSync } from 'zlib';
-// import Group from './group.js'; // Importing the Group model
-//  app = express();
+
+
 app.use(cookieParser());
 
 app.use(express.json());
