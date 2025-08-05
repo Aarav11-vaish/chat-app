@@ -7,14 +7,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { app, server, receiverSocketMap, io } from './socket.js'; // Importing the socket.io server instance
-import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js';
-import { use } from 'react';
-import { stat } from 'fs';
-import { inflateRawSync } from 'zlib';
-// import Group from './group.js'; // Importing the Group model
-//  app = express();
+
+
 app.use(cookieParser());
 
 app.use(express.json());
@@ -176,6 +172,10 @@ const protectRoute = async (req, res, next) => {
 // what will this function do?
 // The protectRoute function is a middleware that checks for a valid JWT token in the request cookies.
 // If the token is valid, it retrieves the user from the database and attaches it to the request object.
+
+app.get("/", (req, res) => {
+    res.send("Welcome to the Chat App Backend");
+});
 
 app.post("/create-group", protectRoute, async (req, res) => {
     const { name, ispublic } = req.body;
