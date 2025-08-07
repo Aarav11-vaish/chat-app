@@ -144,7 +144,7 @@ connectsocket: () => {
         return;
     }
 
-    const socket =io("http://localhost:3000", {
+    const socket =io(import.meta.env.VITE_BACKEND_URL ||  "http://localhost:3000", {
         query: { userID: authUser._id },
         transports: ['websocket'],
         reconnectionAttempts: 5,
