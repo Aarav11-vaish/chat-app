@@ -16,7 +16,7 @@ function Email_verification() {
         // Wait 2 seconds and then redirect
         setTimeout(() => {
           navigate("/login");
-        }, 2000);
+        }, 1000);
       } catch (err) {
         console.error("Email verification failed:", err);
         setStatus("error");
