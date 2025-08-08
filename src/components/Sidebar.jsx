@@ -145,7 +145,7 @@ const searchUser = authStore((state) => state.searchUser);
       ) : (
         <>
           <div className="p-5">
-            <h2 className="text-lg font-semibold">All Groups</h2>
+            <h2 className="text-lg font-semibold">All Groups, ⚠️ we are working on this group chat and real time board</h2>
           </div>
           <div className="overflow-y-auto w-full py-3">
             {groups.map((grp) => {
@@ -183,7 +183,7 @@ const searchUser = authStore((state) => state.searchUser);
             })}
             {groups.length === 0 && (
               <div className="text-center text-zinc-500 py-4">
-                No groups found
+                No groups found , we are working on this feature
               </div>
             )}
           </div>
