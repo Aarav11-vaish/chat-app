@@ -112,6 +112,7 @@ function Profile() {
                     </div>
 
                     {/* Update Button */}
+                    <form onSubmit={handleSubmit}>
                     <button
                       type="submit"
                       disabled={isProfileUpdated}
@@ -130,6 +131,7 @@ function Profile() {
                         'Update Profile'
                       )}
                     </button>
+                    </form>
                   </div>
                 </div>
               </div>
