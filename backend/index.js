@@ -560,6 +560,19 @@ app.post('/send/:id', protectRoute, async (req, res) => {
     // need to implement socket.io to send the message to the receiver in real-time
 
 })
+app.get('/users', protectRoute, async (req, res) => {
+    try {
+
+        const loggedinuser = req.user;
+        const users = await User.find({ _id: { $ne: loggedinuser._id } }).select("-password");// Exclude password from the response
+        res.status(200).json(users);
+    }
+    catch (err) {
+        console.error(err, "Error in fetching users");
+        res.status(500).json({ error: "Internal server error" });
+    }
+})
+
 app.get('/checkAuth', protectRoute, (req, res) => {
     try {
         res.status(200).json(req.user);

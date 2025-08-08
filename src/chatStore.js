@@ -67,7 +67,6 @@ joinGroup: async (group) => {
 
         }
         catch (e) {
-            toast.error("Error in fetching users");
             console.error(e);
         }
         finally {
