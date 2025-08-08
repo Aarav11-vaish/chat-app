@@ -51,47 +51,40 @@ searchUser: async (roomID) => {
 },
 
 
-    signAuth:async (data)=>{
-        set({ isSignedUp: true });
-        try{
-            const res =await axiosInstance.post('/signup', data);
-            // console.log(res);
-            // set({ authUser: res.data});
-            toast.success("Signup successful!! please verify your email");
-        }
-            catch(e){
-toast.error("Signup failed");
-console.error(e, "Error in signAuth");
-            }
-        finally {
-            set({ isSignedUp: false });
-        }
-    },
-    login:async(data)=>{
-      try{
-set({ isLoggedIn: true });
-        const res =await axiosInstance.post('/login', data);
+  signAuth: async (data) => {
+    set({ isSignedUp: true });
+    try {
+        const res = await axiosInstance.post('/signup', data, { withCredentials: true });
+        toast.success("Signup successful!! Please verify your email");
+    } catch (e) {
+        toast.error("Signup failed");
+        console.error(e, "Error in signAuth");
+    } finally {
+        set({ isSignedUp: false });
+    }
+},
+
+login: async (data) => {
+    set({ isLoggedIn: true });
+    try {
+        const res = await axiosInstance.post('/login', data, { withCredentials: true });
         console.log(res);
         set({ authUser: res.data });
         get().connectsocket();
-       
         toast.success("Login successful");
-      } 
-      catch(e){
-        // if the user does not exist then say "User does not exist"
+    } catch (e) {
         if (e.response && e.response.status === 400) {
-          toast.error("User does not exist");
+            toast.error("User does not exist");
         } else if (e.response && e.response.status === 500) {
-          toast.error("email verification required");
+            toast.error("Email verification required");
         } else {
-          toast.error("Login failed");
+            toast.error("Login failed");
         }
-        
-      }
-      finally{
-set({ isLoggedIn: false });
-      } 
-    },
+    } finally {
+        set({ isLoggedIn: false });
+    }
+},
+
      logout:async()=>{
         try{
             const res =await axiosInstance.get('/logout');

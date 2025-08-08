@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import { app, server, receiverSocketMap, io } from './socket.js'; // Importing the socket.io server instance
 import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js';
+import path from 'path';
 
 
 app.use(cookieParser());
@@ -21,7 +22,7 @@ app.use(cors({
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"], 
     credentials: true,              // allow cookies, auth headers
 }));
-
+const __dirname = path.resolve();
 
 mongoose.connect(process.env.MONGO_URL);
 
@@ -147,6 +148,13 @@ const Group = mongoose.model("Group", groupSchema);
 const Invitation = mongoose.model("Invitation", invitationSchema);
 const GroupMessage = mongoose.model("GroupMessage", groupMessageSchema);
 const roomID_generator = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+// if(process.env.MODE_ENV==="production"){
+//     app.use(express.static(path.join(__dirname, '../dist'))); // Serve static files from the 'dist' directory 
+//     app.get('*', (req, res) => {
+//         res.sendFile(path.join(__dirname, '../dist', 'index.html')); // Serve index.html for all other routes
+//     });
+// }
 
 const protectRoute = async (req, res, next) => {
     try {
@@ -404,7 +412,7 @@ const generateToken = (userid, res) => {
     res.cookie("jwt", token, {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-        sameSite: 'strict', // Helps prevent CSRF attacks
+        sameSite: 'none', // Helps prevent CSRF attacks
         secure: process.env.NODE_ENV === 'production' // Use secure cookies in production
     })
     return token;
