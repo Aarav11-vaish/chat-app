@@ -6,7 +6,7 @@ const app= express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONT_END_URL ||  'http://localhost:5173', // Adjust this to your frontend URL
+    origin: [process.env.FRONT_END_URL ,  'http://localhost:5173'], // Adjust this to your frontend URL
    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
 
     credentials: true,
