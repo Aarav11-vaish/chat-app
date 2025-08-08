@@ -572,8 +572,8 @@ app.get('/users', protectRoute, async (req, res) => {
     try {
         const loggedInUserId = req.user._id; // ✅ Get the current logged-in user's ID
 
-       const partnerIds = await Message.distinct("senderID", { receiverID: loggedInUserId });
-const receiverIds = await Message.distinct("receiverID", { senderID: loggedInUserId });
+       const partnerIds = await messageModel.distinct("senderID", { receiverID: loggedInUserId });
+const receiverIds = await messageModel.distinct("receiverID", { senderID: loggedInUserId });
 
         // Merge, remove duplicates, and exclude myself
         const conversationUserIds = [...new Set([...partnerIds, ...receiverIds])]
