@@ -3,6 +3,7 @@ import { authStore } from "../authStore";
 import { chatStore } from "../chatStore";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import TxtDelete from "../FeatureButton/TxtDelete";
 
 const ChatHeader = () => {
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ sendMessages(selectedusers._id, `Join whiteboard:  ${whiteboardLink}`);
               <span className="hidden sm:inline ml-1">New</span>
             </button>
           )}
+          <TxtDelete/>
           <button
             onClick={() => {
               isGroup ? setSelectedGroups(null) : setSelectedUser(null);

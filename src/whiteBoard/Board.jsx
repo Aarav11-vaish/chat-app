@@ -191,8 +191,11 @@ const Board = () => {
         ctx.rect(el.startX, el.startY, el.endX - el.startX, el.endY - el.startY);
         ctx.stroke();
       } else if (el.type === "circle") {
-        const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
-        ctx.arc(el.startX, el.startY, radius, 0, 2 * Math.PI);
+
+let isDrawing = false;
+let startX, startY;
+const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
+        ctx.arc(el.startX, el.startY, radius, 0, (2 * Math.PI));
         ctx.stroke();
       } else if (el.type === "text") {
         // Important: Reset context for text rendering
