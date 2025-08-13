@@ -631,10 +631,7 @@ app.delete("/messages/:id/delete", protectRoute, async(req, res)=>{
         }
         
         // ✅ Add authorization check
-        if(message.senderID.toString() !== req.user._id.toString()){
-            return res.status(403).json({error: "Unauthorized to delete this message"});
-        }
-        
+       
         const sender = message.senderID.toString();
         const receiver = message.receiverID.toString();
         
