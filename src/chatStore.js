@@ -74,6 +74,29 @@ joinGroup: async (group) => {
         }
 
     },
+deletemessages: async (messageid)=>{
+try{
+
+    if (!messageid) {
+        toast.error("No message ID provided");
+        return;
+    }else{
+        console.log("Deleting messages with ID:", messageid);
+    }
+    console.log(axiosInstance, `/messages/${messageid}/delete`);
+    
+    const res = await axiosInstance.delete(`/messages/${messageid}/delete`);
+    console.log("Delete response:", res.data);
+    
+    toast.success(res.data.message || "Messages deleted successfully"); // ✅ Fixed
+    set({messages:[]});
+}
+catch(e){
+    toast.error("Error in deleting messages");
+    console.error(e);
+}
+},
+
     getMessages: async (id) => {
         set({ ismessagesloading: true });
         try {
@@ -110,29 +133,31 @@ joinGroup: async (group) => {
 
     setSelectedUser: (selectedusers) => set({ selectedusers }),
 
-    subscribetomessages: () => {
+subscribetomessages: () => {
+    const { selectedusers } = get();
+    const socket = authStore.getState().socket;
+
+    if (!socket) return;
+
+    socket.on("newmessage", (newmessage) => {
+        if (
+            newmessage.senderID !== selectedusers._id &&
+            newmessage.receiverID !== selectedusers._id
+        ) return;
+        set({ messages: [...get().messages, newmessage] });
+    });
+
+    socket.on("conversationDeleted", ({ sender, receiver }) => {
         const { selectedusers } = get();
-        if (!selectedusers) {
-            console.error("No user selected to subscribe to messages");
-            return;
+        if (
+            selectedusers &&
+            [sender, receiver].includes(selectedusers._id)
+        ) {
+            set({ messages: [] });
         }
-        const socket = authStore.getState().socket;
-        if (!socket) {
-            console.error("Socket is not connected");
-            return;
-        }
-        socket.on("newmessage", (newmessage) => {
+    });
+},
 
-            if (
-                newmessage.senderID !== selectedusers._id &&
-                newmessage.receiverID !== selectedusers._id
-            ) return;
-            set({
-                messages: [...get().messages, newmessage]
-            })
-        })
-
-    },
     unsubscribetomessages: () => {
         const socket = authStore.getState().socket;
         if (!socket) {

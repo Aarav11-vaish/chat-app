@@ -621,6 +621,48 @@ app.get('/:id', protectRoute, async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 })
+
+app.delete("/messages/:id/delete", protectRoute, async(req, res)=>{
+    const {id}= req.params;
+    try{
+        const message = await messageModel.findById(id);
+        if(!message){
+            return res.status(404).json({error: "Message not found"});
+        }
+        
+        // ✅ Add authorization check
+        if(message.senderID.toString() !== req.user._id.toString()){
+            return res.status(403).json({error: "Unauthorized to delete this message"});
+        }
+        
+        const sender = message.senderID.toString();
+        const receiver = message.receiverID.toString();
+        
+        await messageModel.deleteMany({
+            $or:[
+                { senderID: message.senderID, receiverID: message.receiverID },
+                { senderID: message.receiverID, receiverID: message.senderID }
+            ]
+        });
+        
+        // ✅ Fixed socket emission (assuming receiverSocketMap is imported correctly)
+        const senderSocketId = receiverSocketMap[sender];
+        const receiverSocketId = receiverSocketMap[receiver];
+        
+        if(senderSocketId) {
+            io.to(senderSocketId).emit("conversationDeleted", { sender, receiver });
+        }
+        if(receiverSocketId) {
+            io.to(receiverSocketId).emit("conversationDeleted", { sender, receiver });
+        }
+
+        res.status(200).json({message: "Messages deleted successfully"});
+    }
+    catch(err){
+        console.error(err, "Error in deleting messages");
+        res.status(500).json({ error: "Internal server error" });
+    }
+})
 server.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
