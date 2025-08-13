@@ -600,28 +600,6 @@ app.get('/checkAuth', protectRoute, (req, res) => {
     }
 })
 
-app.get('/:id', protectRoute, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const senderID = req.user._id;
-        const messages = await messageModel.find({
-            $or: [
-                { senderID: senderID, receiverID: id },
-                { senderID: id, receiverID: senderID }
-            ]
-        })
-
-        res.status(200).json(messages);
-
-
-    }
-    
-    catch (err) {
-        console.error(err, "Error in fetching user by ID");
-        res.status(500).json({ error: "Internal server error" });
-    }
-})
-
 app.delete("/messages/:id/delete", protectRoute, async(req, res)=>{
     const {id}= req.params;
     try{
@@ -663,6 +641,30 @@ app.delete("/messages/:id/delete", protectRoute, async(req, res)=>{
         res.status(500).json({ error: "Internal server error" });
     }
 })
+
+app.get('/:id', protectRoute, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const senderID = req.user._id;
+        const messages = await messageModel.find({
+            $or: [
+                { senderID: senderID, receiverID: id },
+                { senderID: id, receiverID: senderID }
+            ]
+        })
+
+        res.status(200).json(messages);
+
+
+    }
+    
+    catch (err) {
+        console.error(err, "Error in fetching user by ID");
+        res.status(500).json({ error: "Internal server error" });
+    }
+})
+
+
 server.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
