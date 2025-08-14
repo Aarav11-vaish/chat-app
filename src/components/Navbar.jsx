@@ -1,22 +1,18 @@
-import React, { useState } from "react";
-import { MessageSquare, User, Settings, LogOut, Palette } from "lucide-react";
-// import { Link } from "react-router-dom";
-// import { authStore } from "../authStore";
+import React from "react";
+import { MessageSquare, User, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import { authStore } from "../authStore"; // ✅ real store
 
-// Mock for demonstration - replace with your actual imports
-const Link = ({ to, children, className, ...props }) => <a href={to} className={className} {...props}>{children}</a>;
-const authStore = () => ({ logout: () => {}, authUser: { name: "User" } });
-
-function Navbar(){
-  const {logout, authUser} = authStore();
+function Navbar() {
+  const { logout, authUser } = authStore(); // ✅ actual state + actions
 
   return (
     <header className="bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800 fixed w-full top-0 z-40 backdrop-blur-xl backdrop-saturate-150">
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-8">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="flex items-center gap-3 hover:opacity-90 transition-all duration-200 group"
             >
               <div className="relative">
@@ -33,9 +29,9 @@ function Navbar(){
 
           <div className="flex items-center gap-3">
             {authUser && (
-              <> 
-                <Link 
-                  to={"/profile"} 
+              <>
+                <Link
+                  to={"/profile"}
                   className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 hover:shadow-sm hover:scale-105 active:scale-95"
                 >
                   <div className="p-1 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white group-hover:from-green-400 group-hover:to-emerald-500 transition-all duration-200">
@@ -44,7 +40,7 @@ function Navbar(){
                   <span className="hidden sm:inline text-sm font-medium">Profile</span>
                 </Link>
 
-                <button 
+                <button
                   className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200 hover:shadow-sm hover:scale-105 active:scale-95 ring-1 ring-red-200 dark:ring-red-800"
                   onClick={logout}
                 >
@@ -60,6 +56,6 @@ function Navbar(){
       </div>
     </header>
   );
-};
+}
 
 export default Navbar;
