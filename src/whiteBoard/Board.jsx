@@ -145,7 +145,6 @@ const Board = () => {
   const stopDrawing = (e) => {
     if (!isDrawing || tool === 'text') return;// what is this for? 
 
-
     const pos = getMousePos(e);
     setIsDrawing(false);
     if (tool !== "pen") {
@@ -253,104 +252,187 @@ const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
     socket.emit("clear-board", roomId);
   };
 
+  // Tool icons and labels
+  const toolConfig = {
+    pen: { icon: "✏️", label: "Pen" },
+    text: { icon: "📝", label: "Text" },
+    line: { icon: "📏", label: "Line" },
+    rectangle: { icon: "⬛", label: "Rectangle" },
+    circle: { icon: "⭕", label: "Circle" }
+  };
+
   return (
-    <div className="relative h-screen bg-blue-1000 flex">
+    <div className="relative  bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex">
       {/* Video Call Overlay */}
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-2 right-4 z-50 drop-shadow-2xl">
         <VideoCall />
       </div>
 
-      {/* Sidebar Tools */}
-      <div className="w-64 bg-gray-900 p-4 text-white space-y-4">
-        <h3 className="text-lg font-bold">Tools</h3>
-        <div className="grid grid-cols-2 gap-1">
-          {["pen", "text", "line", "rectangle", "circle"].map((t) => (
+      {/* Professional Sidebar */}
+      <div className="w-60 bg-white/10 backdrop-blur-xl border-r border-white/20 shadow-2xl">
+        <div className="p-6 space-y-6">
+          {/* Header */}
+          <div className="border-b border-white/20 pb-4">
+            <h2 className="text-2xl font-bold text-white mb-1">Whiteboard Studio</h2>
+            <p className="text-sm text-white/70">Room: {roomId?.slice(-6)}</p>
+          </div>
+
+          {/* Drawing Tools */}
+          <div>
+            <h3 className="text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">Drawing Tools</h3>
+            <div className="grid grid-cols-1 gap-2">
+              {Object.entries(toolConfig).map(([t, config]) => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    setTool(t);
+                    console.log("Tool selected:", t); // Debug log
+                  }}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    tool === t 
+                      ? "bg-blue-500 text-white shadow-lg transform scale-105" 
+                      : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
+                  }`}
+                >
+                  <span className="text-lg">{config.icon}</span>
+                  <span>{config.label}</span>
+                  {tool === t && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Color Palette */}
+          <div>
+            <h3 className="text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">Color Palette</h3>
+            <div className="grid grid-cols-4 gap-3">
+              {["#FFFFFF", "#FF4444", "#44FF44", "#4444FF", "#FFFF44", "#FF44FF", "#44FFFF", "#000000"].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  className={`w-12 h-12 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
+                    color === c ? "border-white shadow-lg" : "border-white/30 hover:border-white/60"
+                  }`}
+                  style={{ backgroundColor: c }}
+                >
+                  {color === c && (
+                    <div className="w-full h-full rounded-md flex items-center justify-center">
+                      <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Brush Settings */}
+          <div>
+            <h3 className="text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">Brush Settings</h3>
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm text-white/80">Thickness</label>
+                <span className="text-sm font-medium text-white">{thickness}px</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                value={thickness}
+                onChange={(e) => setThickness(parseInt(e.target.value))}
+                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                style={{
+                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(thickness-1)*11.11}%, rgba(255,255,255,0.2) ${(thickness-1)*11.11}%, rgba(255,255,255,0.2) 100%)`
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="space-y-3">
             <button
-              key={t}
-              onClick={() => {
-                setTool(t);
-                console.log("Tool selected:", t); // Debug log
-              }}
-              className={`rounded px-4 py-2 text-sm ${
-                tool === t ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"
-              }`}
+              onClick={clearBoard}
+              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              {t}
+              🗑️ Clear Board
             </button>
-          ))}
-        </div>
+          </div>
 
-        <h3 className="text-sm mt-4">Colors</h3>
-        <div className="grid grid-cols-6 gap-1">
-          {["#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"].map((c) => (
-            <button
-              key={c}
-              onClick={() => setColor(c)}
-              className="w-5 h-5 border border-white"
-              style={{ backgroundColor: c }}
-            ></button>
-          ))}
-        </div>
-
-        <h3 className="text-sm mt-4">Thickness</h3>
-        <input
-          type="range"
-          min={1}
-          max={10}
-          value={thickness}
-          onChange={(e) => setThickness(parseInt(e.target.value))}
-        />
-
-        {/* Clear Board Button */}
-        <button
-          onClick={clearBoard}
-          className="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm mt-4"
-        >
-          Clear Board
-        </button>
-
-        {/* Current tool indicator */}
-        <div className="text-xs text-gray-400 mt-2">
-          Current tool: <span className="text-white">{tool}</span>
-        </div>
-        
-        {/* Data persistence indicator */}
-        <div className="text-xs text-gray-400">
-          💾 Auto-saved locally
+          {/* Status Indicators */}
+          <div className="border-t border-white/20 pt-4 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-white/60">Active Tool:</span>
+              <span className="text-white font-medium capitalize">{toolConfig[tool]?.label}</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-green-400">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>Auto-saved locally</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Whiteboard Canvas */}
-      <div className="flex-1 relative">
+      {/* Canvas Area */}
+      <div className="flex-1 relative bg-slate-900">
+        {/* Canvas Grid Pattern */}
+        <div className="absolute inset-0 opacity-20" 
+             style={{
+               backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+               backgroundSize: '20px 20px'
+             }}>
+        </div>
+        
         <canvas
           ref={canvasRef}
-          className="w-full h-full cursor-crosshair"
+          className="w-full h-full cursor-crosshair relative z-10"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
         />
 
-        {/* Text Input Overlay - Fixed positioning */}
+        {/* Enhanced Text Input */}
         {textInput.show && (
-          <input
-            autoFocus
-            className="absolute bg-slate-400 text-black p-2 text-base rounded border-2 shadow-lg z-50"
-            style={{
-              left: `${textInput.x}px`, // Use canvas coordinates directly
-              top: `${textInput.y}px`,
-              minWidth: "150px",
-              fontSize: "16px",
-              transform: 'translate(0, -50%)', // Center vertically on click point
-            }}
-            value={textInput.text}
-            onChange={(e) => setTextInput((prev) => ({ ...prev, text: e.target.value }))}
-            onKeyDown={handleTextSubmit}
-            onBlur={handleTextBlur}
-            placeholder="Type text here..."
-          />
+          <div className="absolute z-50" style={{ left: `${textInput.x}px`, top: `${textInput.y}px` }}>
+            <input
+              autoFocus
+              className="bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-2 text-base rounded-lg border-2 border-blue-500 shadow-2xl min-w-48 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              style={{
+                fontSize: "16px",
+                transform: 'translate(0, -50%)',
+              }}
+              value={textInput.text}
+              onChange={(e) => setTextInput((prev) => ({ ...prev, text: e.target.value }))}
+              onKeyDown={handleTextSubmit}
+              onBlur={handleTextBlur}
+              placeholder="Type your text here..."
+            />
+            <div className="text-xs text-white/60 mt-1 text-center">Press Enter to confirm, Esc to cancel</div>
+          </div>
         )}
       </div>
+
+      {/* Custom CSS for slider styling */}
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #3b82f6;
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,11 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-.App {
-  margin: 0 auto;
-  text-align: center;
-}
-
 
 
 

@@ -630,7 +630,7 @@ app.delete("/messages/:id/delete", protectRoute, async(req, res)=>{
             return res.status(404).json({error: "Message not found"});
         }
         
-        // ✅ Add authorization check
+        
        
         const sender = message.senderID.toString();
         const receiver = message.receiverID.toString();
@@ -642,7 +642,6 @@ app.delete("/messages/:id/delete", protectRoute, async(req, res)=>{
             ]
         });
         
-        // ✅ Fixed socket emission (assuming receiverSocketMap is imported correctly)
         const senderSocketId = receiverSocketMap[sender];
         const receiverSocketId = receiverSocketMap[receiver];
         

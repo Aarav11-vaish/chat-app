@@ -102,7 +102,6 @@ if (localVideoRef.current) {
   }
 };
 
-
   const toggleMute = () => {
     if (streamRef.current) {
       streamRef.current.getAudioTracks().forEach(track => {
@@ -122,25 +121,48 @@ if (localVideoRef.current) {
   };
 
   return (
-    <div className="p-2 bg-black   text-white space-y-6">
-      <div className="flex gap-6 justify-center">
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Your Video</h2>
-          <video ref={localVideoRef} autoPlay muted playsInline className="w-64 h-48 bg-gray-800 rounded" />
+    <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 shadow-2xl border border-white/10">
+      {/* Compact Video Layout */}
+      <div className="flex gap-1 mb-2">
+        <div className="relative">
+          <video 
+            ref={localVideoRef} 
+            autoPlay 
+            muted 
+            playsInline 
+            className="w-40 h-32 bg-gray-800 rounded object-cover" 
+          />
+          <div className="absolute bottom-0 left-0 text-xs bg-black/60 px-1 rounded-tr text-white">You</div>
         </div>
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Partner Video</h2>
-          <video ref={remoteVideoRef} autoPlay playsInline className="w-64 h-48 bg-gray-800 rounded" />
+        <div className="relative">
+          <video 
+            ref={remoteVideoRef} 
+            autoPlay 
+            playsInline 
+            className="w-40 h-32 bg-gray-800 rounded object-cover" 
+          />
+          <div className="absolute bottom-0 left-0 text-xs bg-black/60 px-1 rounded-tr text-white">Guest</div>
         </div>
       </div>
 
-      <div className="flex justify-center gap-6 mt-4">
-        <button onClick={toggleVideo} className="text-white bg-gray-700 p-3 rounded-full hover:bg-gray-600">
-          {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+      {/* Compact Controls */}
+      <div className="flex justify-center gap-1">
+        <button 
+          onClick={toggleVideo} 
+          className={`p-1.5 rounded-full transition-colors ${
+            isVideoOff ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-700 hover:bg-gray-600'
+          }`}
+        >
+          {isVideoOff ? <VideoOff size={14} className="text-white" /> : <Video size={14} className="text-white" />}
         </button>
 
-        <button onClick={toggleMute} className="text-white bg-gray-700 p-3 rounded-full hover:bg-gray-600">
-          {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+        <button 
+          onClick={toggleMute} 
+          className={`p-1.5 rounded-full transition-colors ${
+            isMuted ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-700 hover:bg-gray-600'
+          }`}
+        >
+          {isMuted ? <MicOff size={14} className="text-white" /> : <Mic size={14} className="text-white" />}
         </button>
       </div>
     </div>
