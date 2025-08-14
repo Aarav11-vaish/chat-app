@@ -18,7 +18,7 @@ function Home() {
       <div className="h-screen">
         <div className="flex items-center justify-center pt-20 px-4">
           <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/30 w-full max-w-7xl h-[calc(100vh-8rem)] border border-white/20 dark:border-gray-700/50">
-            <div className="flex h-full rounded-2xl overflow-hidden">
+            <div className="flex h-full rounded-2xl ">
               <Sidebar />
               {shouldShowChatContainer ? <ChatContainer /> : <NoChatselected />}
             </div>
