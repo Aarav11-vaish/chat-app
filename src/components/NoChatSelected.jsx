@@ -44,7 +44,7 @@ return(
             Welcome to DoodleSync!
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-md mx-auto">
-            Start connecting with your team by selecting a conversation or searching for users.
+            Start connecting with your team by selecting a conversation or searching for user's ID.
           </p>
         </div>
 
@@ -76,12 +76,7 @@ return(
         </div>
 
         {/* Call to action */}
-        <div className="pt-6">
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium text-sm shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 cursor-pointer">
-            <Search className="w-4 h-4" />
-            <span>Search for users to get started</span>
-          </div>
-        </div>
+      
       </div>
     </div>
   );

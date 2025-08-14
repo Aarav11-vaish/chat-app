@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { axiosInstance } from "../axios"; // Adjust path as needed
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function GroupPage() {
@@ -11,6 +11,15 @@ const [isPublic, setIsPublic] = useState(true); // default to public
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+  const toastId = toast.loading(
+    "OH!! wait, we are working on this feature..., we'll see you soon in group chat"
+  );
+
+  setTimeout(() => {
+    toast.dismiss(toastId);
+  }, 4000); // Show for 2 seconds
+  navigate("/"); // Redirect after toast closes
+  return;
     try {
       const res = await axiosInstance.post("/create-group", {
         name,

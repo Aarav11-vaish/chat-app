@@ -392,13 +392,13 @@ const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
 
         {/* Enhanced Text Input */}
         {textInput.show && (
-          <div className="absolute z-50" style={{ left: `${textInput.x}px`, top: `${textInput.y}px` }}>
+          <div className="absolute flex z-50" style={{ left: `${textInput.x}px`, top: `${textInput.y}px` }}>
             <input
               autoFocus
-              className="bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-2 text-base rounded-lg border-2 border-blue-500 shadow-2xl min-w-48 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              className="bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-1 text-base rounded-lg border-2 border-blue-500 shadow-2xl min-w-48 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
               style={{
                 fontSize: "16px",
-                transform: 'translate(0, -50%)',
+                transform: 'translate(0, 10%)',
               }}
               value={textInput.text}
               onChange={(e) => setTextInput((prev) => ({ ...prev, text: e.target.value }))}
