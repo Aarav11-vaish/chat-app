@@ -276,7 +276,7 @@ function Sidebar() {
   );
 
   return (
-    <aside className="h-full w-20 lg:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 shadow-sm">
+    <aside className="h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 shadow-sm">
       <ChatModeToggle />
       <div className="flex-1 flex flex-col min-h-0">
         {chatMode === "personal" ? renderPersonalMode() : renderGroupMode()}
