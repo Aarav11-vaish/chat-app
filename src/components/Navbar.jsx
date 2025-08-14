@@ -1,10 +1,10 @@
 import React from "react";
 import { MessageSquare, User, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
-import { authStore } from "../authStore"; // ✅ real store
+import { authStore } from "../authStore"; 
 
 function Navbar() {
-  const { logout, authUser } = authStore(); // ✅ actual state + actions
+  const { logout, authUser } = authStore(); 
 
   return (
     <header className="bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800 fixed w-full top-0 z-40 backdrop-blur-xl backdrop-saturate-150">

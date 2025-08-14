@@ -529,22 +529,23 @@ console.log("Generated user ID:", userId);
 });
 
 
-app.get('/logout', (req, res) => {
-    try {
-        res.cookie("jwt", "", {
-            maxAge: 0, // Set cookie to expire immediately
-        })
-        res.status(200).json({ message: "Logout successful" });
-        console.log("logging out");
+app.get("/logout", (req, res) => {
+  try {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/", // important!
+    });
 
+    res.status(200).json({ message: "Logout successful" });
+    console.log("✅ User logged out");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Internal server error" });
-    }
-
-})
 
 
 

@@ -85,20 +85,18 @@ login: async (data) => {
     }
 },
 
-     logout:async()=>{
-        try{
-            const res =await axiosInstance.get('/logout');
-            set({ authUser:null});
-            console.log(res);
-            toast.success("Logout successful");
-            get().disconnectsocket();
-        }
-        catch(e){
-            console.error(e, "Error in logout");
-            toast.error("Logout failed");
+    logout: async () => {
+  try {
+    await axiosInstance.get("/logout", { withCredentials: true });
+    set({ authUser: null });
+    toast.success("Logout successful");
+    get().disconnectsocket();
+  } catch (e) {
+    console.error("Error in logout:", e);
+    toast.error("Logout failed");
+  }
+},
 
-        }
-    }, 
    profileupdate: async (data) => {
     try {
         set({ isProfileUpdated: true});
