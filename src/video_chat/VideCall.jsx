@@ -125,19 +125,19 @@ function VideoCall() {
   };
 
   return (
-    <div className="p-2 bg-black text-white space-y-6">
-      <div className="flex gap-6 justify-center">
+    <div className="p-2 bg-black text-white space-y-4">
+      <div className="flex gap-4 justify-center">
         <div>
           <h2 className="text-lg font-semibold mb-2">Your Video</h2>
-          <video ref={localVideoRef} autoPlay muted playsInline className="w-64 h-48 bg-gray-800 rounded" />
+          <video ref={localVideoRef} autoPlay muted playsInline className="w-48 h-36 bg-gray-800 rounded" />
         </div>
         <div>
           <h2 className="text-lg font-semibold mb-2">Partner Video</h2>
-          <video ref={remoteVideoRef} autoPlay playsInline className="w-64 h-48 bg-gray-800 rounded" />
+          <video ref={remoteVideoRef} autoPlay playsInline className="w-48 h-36 bg-gray-800 rounded" />
         </div>
       </div>
 
-      <div className="flex justify-center gap-6 mt-4">
+      <div className="flex justify-center gap-4 mt-4">
         <button onClick={toggleVideo} className="text-white bg-gray-700 p-3 rounded-full hover:bg-gray-600">
           {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
         </button>
