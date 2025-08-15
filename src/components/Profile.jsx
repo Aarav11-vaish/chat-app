@@ -116,10 +116,10 @@ function Profile() {
                     <button
                       type="submit"
                       disabled={isProfileUpdated}
-                      className={`w-full py-3 px-6 rounded-xl font-medium text-slate-600 transition-all duration-200 ${
+                      className={`w-full py-3 px-6 rounded-xl font-medium text-white-600 transition-all duration-200 ${
                         isProfileUpdated 
-                          ? 'bg-slate-400 cursor-not-allowed' 
-                          : 'bg-slate-800 hover:bg-slate-900 hover:shadow-lg transform hover:-translate-y-0.5'
+                          ? 'bg-white-400 cursor-not-allowed' 
+                          : 'bg-white-800 hover:bg-slate-900 hover:shadow-lg transform hover:-translate-y-0.5'
                       }`}
                     >
                       {isProfileUpdated ? (

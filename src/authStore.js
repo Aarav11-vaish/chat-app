@@ -55,7 +55,7 @@ searchUser: async (roomID) => {
     set({ isSignedUp: true });
     try {
         const res = await axiosInstance.post('/signup', data, { withCredentials: true });
-        toast.success("Signup successful!! Please verify your email");
+        toast.success("Signup successful!! Please verify your email, it will take 4-5 minutes for the , we are working on the optimizations");
     } catch (e) {
         toast.error("Signup failed");
         console.error(e, "Error in signAuth");
