@@ -176,6 +176,7 @@ function Profile() {
                   <p className="text-blue-700 text-sm leading-relaxed">
                     Your account information is encrypted and secure. Any changes to your profile will be logged for security purposes.
                   </p>
+                  <h3 className='text-blue-600 text-xs'>If you are not able to see your ID, please refresh the page..</h3>
                 </div>
               </div>
             </div>
