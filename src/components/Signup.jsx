@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Rightsidepattern from "../Rightsidepattern";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom"; // ✅ For redirect
+import { useNavigate } from "react-router-dom"; 
 
 function Signup() {
   const [showpassword, setShowPassword] = useState(false);

@@ -69,13 +69,7 @@ const messagingSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-//     roomid:{
-// type : String,
 
-//         required: true,
-//         unique: true
-
-//     },
     text: {
         type: String,
     },
