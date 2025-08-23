@@ -13,7 +13,6 @@ import {
 import Rightsidepattern from "../Rightsidepattern";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom"; 
-
 function Signup() {
   const [showpassword, setShowPassword] = useState(false);
   const [formdata, setFormData] = useState({
@@ -29,8 +28,8 @@ function Signup() {
     if (isSignedUp) {
       setSuccess(true);
       const timer = setTimeout(() => {
-        navigate("/login"); // ✅ Redirect to login after 10 seconds
-      }, 10000);
+        navigate("/login"); // ✅ Redirect to login after 8 seconds
+      }, 8000);
       return () => clearTimeout(timer);
     }
   }, [isSignedUp, navigate]);
@@ -59,7 +58,9 @@ function Signup() {
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <MessageSquare className="size-6 text-primary" />
+              
+              <img src="public/tagname.png" alt="" />
+                {/* <MessageSquare className="size-6 text-primary" /> */}
               </div>
               <h1 className="text-2xl font-bold mt-2">Create Account</h1>
               <p className="text-base-content/60">Enter your details to create an account</p>
@@ -112,7 +113,7 @@ function Signup() {
                   <span className="label-text font-medium">Password</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
                     <Lock className="size-5 text-base-content/40" />
                   </div>
                   <input
