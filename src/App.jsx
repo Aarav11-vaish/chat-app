@@ -17,10 +17,30 @@ import GroupPage from './Group/GroupPage';
 import Board from './whiteBoard/Board';
 import VideoCall from './video_chat/VideCall';
 function App() {
+  const [message , setmessage]= useState("Processing...");
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
   // console.log(onlineUsers);
-  
+useEffect(() => {
+  if (!ischeckAuthenticated && !authUser) {
+    setmessage("Processing..."); // reset each time
+
+    const timer1 = setTimeout(() => {
+      setmessage("Fetching user data...");
+    }, 1000);
+
+    const timer2 = setTimeout(() => {
+      setmessage("Connecting sockets for communication...");
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }
+}, [ischeckAuthenticated, authUser]);
+
+
   useEffect(() => {
       checkAuth();
   }, [checkAuth]);
@@ -30,9 +50,15 @@ function App() {
   if(ischeckAuthenticated&& !authUser) {
     // If the authentication check is in progress and no user is authenticated, show a loading spinner
     return (
-      <div className="flex item-center justify-center h-screen ">
-       <Loader className="size-10 animate-spin" />
-      </div>
+     <div className="flex flex-col items-center justify-center h-screen space-y-6 bg-gray-200">
+<div className="flex space-x-2">
+  <div className="w-4 h-4 bg-indigo-600 rounded-full animate-bounce"></div>
+  <div className="w-4 h-4 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+  <div className="w-4 h-4 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.6s]"></div>
+</div>
+  <p className="text-lg font-medium text-gray-700">{message}</p>
+</div>
+
     );
 
   }
