@@ -23,20 +23,25 @@ function App() {
   // console.log(onlineUsers);
 useEffect(() => {
   if (!ischeckAuthenticated && !authUser) {
-    setmessage("Processing..."); // reset each time
-
+    setmessage("Processing and fetching initial component..."); // reset each time
+    
     const timer1 = setTimeout(() => {
+      setmessage("Fetching user data...");
+    }, 1000);
+   setInterval(() => {
+    
+   const timer1 = setTimeout(() => {
       setmessage("Fetching user data...");
     }, 1000);
 
     const timer2 = setTimeout(() => {
-      setmessage("Connecting sockets for communication...");
+      setmessage("We recommend using laptop's chrome browser for better experience for now");
     }, 2000);
-
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
+  }, 4000);
   }
 }, [ischeckAuthenticated, authUser]);
 
@@ -47,7 +52,7 @@ useEffect(() => {
   // console.log("authUser", authUser);
   console.log({authUser});
   
-  if(ischeckAuthenticated&& !authUser) {
+  if(!ischeckAuthenticated&& !authUser) {
     // If the authentication check is in progress and no user is authenticated, show a loading spinner
     return (
      <div className="flex flex-col items-center justify-center h-screen space-y-6 bg-gray-200">

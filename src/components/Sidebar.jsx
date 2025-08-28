@@ -64,7 +64,7 @@ function Sidebar() {
 
   const renderUserAvatar = (user) => (
     <div className="relative shrink-0">
-      <div className="relative">
+      <div className="relative"> 
         <img
           src="/chat.png"
           alt={user.username}
@@ -130,6 +130,7 @@ function Sidebar() {
           <div className="hidden lg:block">
             <h2 className="font-semibold text-gray-900 dark:text-white text-sm">Contacts</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">Connect with your team</p>
+          <p className="text-xs text-gray-300">use your laptop's chrome browser for now</p>
           </div>
         </div>
 
