@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import socket from "../socketboard";
 import VideoCall from "../video_chat/VideCall";
+import Toolbar from "./Toolbar";
 
 const Board = () => {
   const { roomId } = useParams();
@@ -27,7 +28,6 @@ const Board = () => {
     }
   }, [elements, roomId, isInitialized]);
 
-  // Socket setup and data loading
   useEffect(() => {
     socket.emit("join-room", roomId);
     
@@ -269,107 +269,16 @@ const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
       </div>
 
       {/* Professional Sidebar */}
-      <div className="w-60 bg-white/10 backdrop-blur-xl border-r border-white/20 shadow-2xl">
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="border-b border-white/20 pb-4">
-            <h2 className="text-2xl font-bold text-white mb-1">Whiteboard Studio</h2>
-            <p className="text-sm text-white/70">Room: {roomId?.slice(-6)}</p>
-          </div>
-
-          {/* Drawing Tools */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">Drawing Tools</h3>
-            <div className="grid grid-cols-1 gap-2">
-              {Object.entries(toolConfig).map(([t, config]) => (
-                <button
-                  key={t}
-                  onClick={() => {
-                    setTool(t);
-                    console.log("Tool selected:", t); // Debug log
-                  }}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    tool === t 
-                      ? "bg-blue-500 text-white shadow-lg transform scale-105" 
-                      : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white"
-                  }`}
-                >
-                  <span className="text-lg">{config.icon}</span>
-                  <span>{config.label}</span>
-                  {tool === t && <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Color Palette */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">Color Palette</h3>
-            <div className="grid grid-cols-4 gap-3">
-              {["#FFFFFF", "#FF4444", "#44FF44", "#4444FF", "#FFFF44", "#FF44FF", "#44FFFF", "#000000"].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className={`w-12 h-12 rounded-lg border-2 transition-all duration-200 hover:scale-110 ${
-                    color === c ? "border-white shadow-lg" : "border-white/30 hover:border-white/60"
-                  }`}
-                  style={{ backgroundColor: c }}
-                >
-                  {color === c && (
-                    <div className="w-full h-full rounded-md flex items-center justify-center">
-                      <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Brush Settings */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">Brush Settings</h3>
-            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm text-white/80">Thickness</label>
-                <span className="text-sm font-medium text-white">{thickness}px</span>
-              </div>
-              <input
-                type="range"
-                min={1}
-                max={10}
-                value={thickness}
-                onChange={(e) => setThickness(parseInt(e.target.value))}
-                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
-                style={{
-                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(thickness-1)*11.11}%, rgba(255,255,255,0.2) ${(thickness-1)*11.11}%, rgba(255,255,255,0.2) 100%)`
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="space-y-3">
-            <button
-              onClick={clearBoard}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              🗑️ Clear Board
-            </button>
-          </div>
-
-          {/* Status Indicators */}
-          <div className="border-t border-white/20 pt-4 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-white/60">Active Tool:</span>
-              <span className="text-white font-medium capitalize">{toolConfig[tool]?.label}</span>
-            </div>
-            <div className="flex items-center space-x-2 text-xs text-green-400">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span>Auto-saved locally</span>
-            </div>
-          </div>
-        </div>
-      </div>
+     <Toolbar
+       tool={tool} 
+  setTool={setTool} 
+  color={color} 
+  setColor={setColor} 
+  thickness={thickness} 
+  setThickness={setThickness} 
+  clearBoard={clearBoard} 
+  roomId={roomId}
+  />
 
       {/* Canvas Area */}
       <div className="flex-1 relative bg-slate-900">
@@ -383,7 +292,9 @@ const radius = Math.hypot(el.endX - el.startX, el.endY - el.startY);
         
         <canvas
           ref={canvasRef}
-          className="w-full h-full cursor-crosshair relative z-10"
+        
+          height={2000}
+          className="cursor-crosshair relative z-10 block"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}

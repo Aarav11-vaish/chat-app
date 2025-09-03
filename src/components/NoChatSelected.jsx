@@ -58,7 +58,7 @@ return(
               Real-time Chat
             </h3>
             <p className="text-xs text-gray-600 dark:text-gray-400">
-              Instant messaging with your contacts
+             For your demo testing purpose u can search for userid : 495671 
             </p>
           </div>
 

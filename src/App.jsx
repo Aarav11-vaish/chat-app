@@ -23,7 +23,7 @@ function App() {
   // console.log(onlineUsers);
 useEffect(() => {
   if (!ischeckAuthenticated && !authUser) {
-    setmessage("Processing and fetching initial component..."); // reset each time
+    setmessage("Processing and fetching initial component..."); 
     
 
    setInterval(() => {
