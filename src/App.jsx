@@ -52,7 +52,7 @@ useEffect(() => {
   // console.log("authUser", authUser);
   console.log({authUser});
   
-  if(!ischeckAuthenticated&& !authUser) {
+  if(ischeckAuthenticated&& !authUser) {
     // If the authentication check is in progress and no user is authenticated, show a loading spinner
     return (
      <div className="flex flex-col items-center justify-center h-screen space-y-6 bg-gray-200">
