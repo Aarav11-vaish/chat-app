@@ -17,7 +17,7 @@ import GroupPage from './Group/GroupPage';
 import Board from './whiteBoard/Board';
 import VideoCall from './video_chat/VideCall';
 function App() {
-  const [message , setmessage]= useState("Processing...");
+  const [message , setmessage]= useState("fetching components...");
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
   // console.log(onlineUsers);
@@ -25,9 +25,7 @@ useEffect(() => {
   if (!ischeckAuthenticated && !authUser) {
     setmessage("Processing and fetching initial component..."); // reset each time
     
-    const timer1 = setTimeout(() => {
-      setmessage("Fetching user data...");
-    }, 1000);
+
    setInterval(() => {
     
    const timer1 = setTimeout(() => {
