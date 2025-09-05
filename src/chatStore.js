@@ -24,6 +24,7 @@ joinGroup: async (group) => {
     toast.error(e?.response?.data?.error || "Error joining group");
     console.error("Join error:", e);
   }
+  
 },
 
     setChatMode: (mode) => set({ chatMode: mode }),
