@@ -77,7 +77,7 @@ login: async (data) => {
         toast.success("Login successful");
     } catch (e) {
         if (e.response && e.response.status === 400) {
-            toast.error("User does not exist");
+            toast.error("Invalid email/password or user doesnot exist");
         } else if (e.response && e.response.status === 500) {
             toast.error("Email verification required");
         } else {

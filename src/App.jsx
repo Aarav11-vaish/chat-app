@@ -17,7 +17,7 @@ import GroupPage from './Group/GroupPage';
 import Board from './whiteBoard/Board';
 import VideoCall from './video_chat/VideCall';
 function App() {
-  const [message , setmessage]= useState("fetching components...");
+  const [message , setmessage]= useState("fetching components and previous data...");
   const {authUser , checkAuth , ischeckAuthenticated, onlineUsers }=authStore();
 
   // console.log(onlineUsers);
@@ -61,11 +61,8 @@ useEffect(() => {
 </div>
   <p className="text-lg font-medium text-gray-700">{message}</p>
 </div>
-
     );
-
   }
-  
     return (
      <>
      {/* <Navbar/> */}
