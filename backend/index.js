@@ -10,10 +10,13 @@ import { app, server, receiverSocketMap, io } from './socket.js'; // Importing t
 import crypto from 'crypto';
 import sendVerificationEmail from './utils_mailer.js';
 import path from 'path';
-
+import User from './model/userschema.js';
+import messageModel from './model/messagingschema.js';
+import GroupMessage from './model/groupmessageschema.js';
+import Group from './model/groupschema.js';
+import Invitation from './model/invitationschema.js';
 
 app.use(cookieParser());
-
 app.use(express.json());
 
 //apply cors
@@ -26,121 +29,6 @@ const __dirname = path.resolve();
 
 mongoose.connect(process.env.MONGO_URL);
 
-
-
-const userSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    username: {
-        type: String,
-        required: true
-    },
-    password: {
-        type: String,
-        required: true,
-        minlength: 6
-    },
-    id :{
-
-        type: String, 
-        required:true, 
-        unique: true,
-    },
-
-    isVerified: { type: Boolean, default: false },
-    verificationToken: { type: String },
-
-},
-    { timestamps: true }
-);
-
-
-const messagingSchema = new mongoose.Schema({
-    senderID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    receiverID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-
-    text: {
-        type: String,
-    },
-    image: {
-        type: String,
-    },
-}, {
-    timestamps: true
-}
-)
-
-const groupSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    roomid: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    ispublic: {
-        type: Boolean,
-        default: true,
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
-        ref: 'User',
-        required: true,
-    },
-    members: [{
-        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
-        ref: 'User',
-    }],
-
-
-}, { timestamps: true });
-
-const invitationSchema = new mongoose.Schema({
-    groupid: {
-        type: mongoose.Schema.Types.ObjectId,// Reference to the Group model
-        ref: 'Group',
-        required: true
-    },
-    userid: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
-        ref: 'User',
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'accepted', 'rejected'],
-        default: 'pending'
-    },
-
-
-
-}, { timestamps: true });
-
-const groupMessageSchema = new mongoose.Schema({
-  senderID: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  groupID: { type: mongoose.Schema.Types.ObjectId, ref: "Group", required: true },
-  text: String,
-  image: String,
-}, { timestamps: true });
-
-const messageModel = mongoose.model("Message", messagingSchema);
-const User = mongoose.model("User", userSchema);
-const Group = mongoose.model("Group", groupSchema);
-const Invitation = mongoose.model("Invitation", invitationSchema);
-const GroupMessage = mongoose.model("GroupMessage", groupMessageSchema);
 const roomID_generator = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 // if(process.env.MODE_ENV==="production"){
@@ -559,6 +447,8 @@ app.post('/send/:id', protectRoute, async (req, res) => {
     if (receiverSocketId) {
         io.to(receiverSocketId).emit("newmessage", newmessage);
     }
+    // io.to(senderID.toString() === id ? receiverSocketId : usersocketmap[senderID]).emit("newmessage", newmessage);
+
     res.status(201).json(newmessage);
     // need to implement socket.io to send the message to the receiver in real-time
 
