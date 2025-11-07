@@ -17,7 +17,8 @@ import Group from './model/groupschema.js';
 import Invitation from './model/invitationschema.js';
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json());// what wiill this do?
+// This middleware parses incoming JSON requests and puts the parsed data in req.body.
 
 //apply cors
 app.use(cors({
@@ -36,7 +37,12 @@ const roomID_generator = () => Math.floor(100000 + Math.random() * 900000).toStr
 //     app.get('*', (req, res) => {
 //         res.sendFile(path.join(__dirname, '../dist', 'index.html')); // Serve index.html for all other routes
 //     });
-// }
+
+// } what will this code do if it was uncommented?
+
+// This code serves static files from the 'dist' directory when in production mode.
+// It also ensures that for any route not handled by the server, the index.html file is served,
+// allowing client-side routing to work properly in a single-page application.
 
 const protectRoute = async (req, res, next) => {
     try {
@@ -47,7 +53,9 @@ const protectRoute = async (req, res, next) => {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+// what will this decoded have?
+// The decoded variable will contain the payload of the JWT token, 
+// which typically includes the user's ID and any other information that was encoded when the token was created.
         const user = await User.findById(decoded.userid);
         if (!user) {
             return res.status(401).json({ error: "Unauthorized" });
@@ -68,12 +76,15 @@ app.get("/", (req, res) => {
     res.send("Welcome to the Chat App Backend");
 });
 
-app.post("/create-group", protectRoute, async (req, res) => {
+app.post("/create-group" , protectRoute, async (req, res) => {
     const { name, ispublic } = req.body;
     let roomid = "";
     while (true) {
         roomid = roomID_generator();
         const existingUser = await Group.findOne({ roomid });
+console.log("Generated room ID:", roomid, "Existing group:", existingUser);
+
+
         if (!existingUser) break;
     }
 
