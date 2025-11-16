@@ -183,6 +183,11 @@ app.post("/group/:roomid/invite-actions", protectRoute, async (req, res) => {
 app.get("/all-groups", protectRoute, async (req , res)=>{
     try{
   const groups = await Group.find().select("-members").populate("owner", "username");
+  // what will this do?
+    // This query fetches all groups from the database, excluding the 'members' field,
+    // why are we excluding members field?
+    // to reduce the amount of data sent in the response, especially if the members list is large.
+    // It also populates the 'owner' field with the owner's username for better readability.
     res.status(200).json(groups);
 
     }
@@ -313,6 +318,10 @@ const generateToken = (userid, res) => {
 // what is the purpose of this function?
 // The generateToken function creates a JWT token for the user and sets it as a cookie in the response.
 // This token can be used for authentication in subsequent requests, allowing the server to verify the user's identity without requiring them to log in again.
+
+
+
+// i would like to add pattern mathching here so that if i search for partial id it returns matching ids
 
 app.get('/search-room/:id', async (req, res) => {
     try {
